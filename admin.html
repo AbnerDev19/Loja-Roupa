@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área da Dona - Crismon Modas</title>
+    <link rel="icon" href="Fotos/favicon.png" type="image/png">
+    <link rel="stylesheet" href="loja-style.css">
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <div id="login-screen" class="login-overlay">
+        <div class="login-box">
+            <img src="Fotos/logo-removebg-preview.png" alt="Logo">
+            <h2>Área Restrita</h2>
+            <input type="password" id="admin-password" placeholder="Senha de acesso">
+            <button id="btn-login" class="liquid-button dark">Entrar</button>
+        </div>
+    </div>
+
+    <div id="admin-panel" style="display: none;">
+        <header class="admin-header">
+            <div class="logo-container">
+                <span class="nav-logo-text">Painel Crismon</span>
+            </div>
+            <button id="btn-logout" class="liquid-button">Sair</button>
+        </header>
+
+        <main class="admin-main">
+            <div class="admin-controls">
+                <h1>Gerenciar Produtos</h1>
+                <button id="btn-add-product" class="liquid-button primary">
+                    <i class="fas fa-plus"></i> Novo Produto
+                </button>
+            </div>
+
+            <div class="product-list-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Foto</th>
+                            <th>Nome</th>
+                            <th>Preço</th>
+                            <th>Categoria</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-product-list">
+                        </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <div id="product-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="modal-title">Novo Produto</h2>
+            
+            <form id="product-form">
+                <input type="hidden" id="prod-id">
+
+                <div class="form-group">
+                    <label>Nome do Produto</label>
+                    <input type="text" id="prod-name" required placeholder="Ex: Vestido Longo Floral">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Preço (R$)</label>
+                        <input type="text" id="prod-price" required placeholder="Ex: R$ 199,90">
+                    </div>
+                    <div class="form-group">
+                        <label>Parcelamento</label>
+                        <input type="text" id="prod-installments" placeholder="Ex: 3x de R$ 66,63">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <select id="prod-category" class="admin-select">
+                        <option value="vestidos">Vestidos</option>
+                        <option value="saias">Saias</option>
+                        <option value="blusas">Blusas</option>
+                        <option value="calcas">Calças</option>
+                        <option value="fardamentos">Fardamentos</option>
+                        <option value="destaques">Destaques</option>
+                        <option value="camisetas">Camisetas</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Link da Foto (Use o caminho da pasta Fotos)</label>
+                    <input type="text" id="prod-photo" required placeholder="Fotos/nome-da-foto.jpg">
+                </div>
+
+                <button type="submit" class="liquid-button primary" style="width: 100%; margin-top: 1rem;">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="admin-script.js"></script>
+</body>
+</html>
