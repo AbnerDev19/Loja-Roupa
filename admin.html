@@ -15,7 +15,8 @@
         <div class="login-box">
             <img src="Fotos/logo-removebg-preview.png" alt="Logo">
             <h2>Área Restrita</h2>
-            <input type="password" id="admin-password" placeholder="Senha de acesso">
+            <input type="text" id="admin-email" placeholder="E-mail" value="admin@crismon.com">
+            <input type="password" id="admin-password" placeholder="Senha">
             <button id="btn-login" class="liquid-button dark">Entrar</button>
         </div>
     </div>
@@ -57,24 +58,24 @@
     <div id="product-modal" class="modal-overlay">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
-            <h2 id="modal-title">Novo Produto</h2>
+            <h2 id="modal-title">Produto</h2>
             
             <form id="product-form">
                 <input type="hidden" id="prod-id">
 
                 <div class="form-group">
-                    <label>Nome do Produto</label>
-                    <input type="text" id="prod-name" required placeholder="Ex: Vestido Longo Floral">
+                    <label>Nome</label>
+                    <input type="text" id="prod-name" required placeholder="Nome do produto">
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Preço (R$)</label>
-                        <input type="text" id="prod-price" required placeholder="Ex: R$ 199,90">
+                        <label>Preço</label>
+                        <input type="text" id="prod-price" required placeholder="R$ 0,00">
                     </div>
                     <div class="form-group">
-                        <label>Parcelamento</label>
-                        <input type="text" id="prod-installments" placeholder="Ex: 3x de R$ 66,63">
+                        <label>Parcelas</label>
+                        <input type="text" id="prod-installments" placeholder="3x de R$...">
                     </div>
                 </div>
 
@@ -86,14 +87,14 @@
                         <option value="blusas">Blusas</option>
                         <option value="calcas">Calças</option>
                         <option value="fardamentos">Fardamentos</option>
-                        <option value="destaques">Destaques</option>
                         <option value="camisetas">Camisetas</option>
+                        <option value="destaques">Destaques (Home)</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label>Link da Foto (Use o caminho da pasta Fotos)</label>
-                    <input type="text" id="prod-photo" required placeholder="Fotos/nome-da-foto.jpg">
+                    <label>Link da Foto</label>
+                    <input type="text" id="prod-photo" required placeholder="Fotos/arquivo.jpg">
                 </div>
 
                 <button type="submit" class="liquid-button primary" style="width: 100%; margin-top: 1rem;">Salvar</button>
