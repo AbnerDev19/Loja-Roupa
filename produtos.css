@@ -1,104 +1,132 @@
 /* ============================================== */
-/* ==== ESTILOS DA PÁGINA DE PRODUTO (PDP) ==== */
+/* ==== CSS DA PÁGINA DE PRODUTO (produto.css) ==== */
 /* ============================================== */
-.pdp-section {
-    padding: 2rem 5%;
+
+/* Ajusta o 'main' para a página de produto */
+.pdp-main-content {
+    background-color: var(--color-white);
     max-width: 1200px;
-    margin: 0 auto;
-    background-color: #fff;
+    margin: 2rem auto;
+    padding: 0 5%;
+    min-height: 80vh; /* Garante altura mínima */
 }
 
-.pdp-container {
+.pdp-layout {
     display: flex;
-    gap: 2.5rem;
+    gap: 3rem; /* Mais espaço entre as colunas */
+    align-items: flex-start;
 }
 
 /* --- Coluna da Esquerda (Galeria) --- */
-.pdp-gallery-container {
-    flex: 6; /* Ocupa 60% */
+.pdp-gallery-column {
+    flex: 1.2; /* Ocupa um pouco mais de espaço que antes */
     display: flex;
     gap: 1rem;
+    position: sticky; /* Mantém a galeria fixa ao rolar se o texto for longo */
+    top: 100px;
 }
 
-.pdp-thumbnails {
-    flex: 1;
+.pdp-gallery-thumbnails {
+    width: 80px;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    max-height: 600px;
+    overflow-y: auto;
 }
 
-.pdp-thumbnail-img {
+.pdp-gallery-thumbnail-item {
     width: 100%;
-    border-radius: 8px;
-    border: 2px solid var(--color-border);
-    cursor: pointer;
-    transition: border-color 0.2s ease, opacity 0.2s ease;
-    aspect-ratio: 3 / 4; /* Mantém proporção */
-    object-fit: cover;
-}
-
-.pdp-thumbnail-img:hover {
-    border-color: var(--color-text-light);
-}
-
-.pdp-thumbnail-img.active {
-    border-color: var(--color-accent);
-}
-
-.pdp-main-image {
-    flex: 5;
-}
-
-.pdp-main-image img {
-    width: 100%;
-    border-radius: 12px;
+    aspect-ratio: 3 / 4; /* Proporção padrão retrato */
     border: 1px solid var(--color-border);
-    aspect-ratio: 3 / 4;
-    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+    background-size: cover;
+    background-position: center;
+    transition: all 0.2s ease;
+    opacity: 0.6;
+}
+
+.pdp-gallery-thumbnail-item:hover {
+    opacity: 1;
+    border-color: var(--color-text-dark);
+}
+
+.pdp-gallery-thumbnail-item.active {
+    border-color: var(--color-text-dark);
+    opacity: 1;
+    box-shadow: 0 0 0 2px var(--color-text-dark);
+}
+
+/* --- CORREÇÃO DA IMAGEM GIGANTE AQUI --- */
+.pdp-gallery-main-wrapper {
+    flex: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #f9f9f9;
+    border: 1px solid var(--color-border);
+    position: relative;
+}
+
+/* Seletor corrigido para bater com o JS (pdp-main-img) */
+#pdp-main-img {
+    width: 100%;
+    height: auto;
+    max-height: 650px; /* Limite de altura para não estourar a tela */
+    object-fit: cover; /* Cobre a área sem distorcer */
+    aspect-ratio: 3 / 4; /* Mantém a proporção de foto de moda */
+    display: block;
 }
 
 
-/* --- Coluna da Direita (Info) --- */
-.pdp-info-container {
-    flex: 4; /* Ocupa 40% */
-    display: flex;
-    flex-direction: column;
+/* --- Coluna da Direita (Informações) --- */
+.pdp-info-column {
+    flex: 1;
+    padding-top: 0.5rem;
 }
 
-.pdp-cod {
-    font-size: 0.9rem;
+.pdp-label-codigo {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     color: var(--color-text-light);
-    margin-bottom: 0.25rem;
+    display: block;
+    margin-bottom: 0.5rem;
 }
 
 .pdp-title {
-    font-size: 2rem;
-    font-weight: 600;
+    font-size: 2.2rem;
+    font-weight: 700;
     color: var(--color-text-dark);
     line-height: 1.2;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.pdp-price-block {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .pdp-price {
-    font-size: 1.8rem;
-    font-weight: 500;
-    color: var(--color-accent);
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--color-text-dark);
+    display: block;
     margin-bottom: 0.25rem;
 }
 
 .pdp-installments {
     font-size: 1rem;
     color: var(--color-text-light);
-    margin-bottom: 2rem;
-    border-bottom: 1px solid var(--color-border);
-    padding-bottom: 2rem;
 }
 
-.pdp-options-group {
+/* Opções (Cores e Tamanhos) */
+.pdp-options-block {
     margin-bottom: 1.5rem;
 }
 
-.pdp-options-group label {
+.pdp-options-label {
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--color-text-dark);
@@ -106,358 +134,154 @@
     margin-bottom: 0.75rem;
 }
 
-.pdp-sizes, .pdp-colors {
+/* Cores */
+.pdp-colors {
     display: flex;
-    gap: 0.5rem;
     flex-wrap: wrap;
+    gap: 0.75rem;
 }
 
-/* Reutilizando os estilos de .size-option e .color-swatch do loja-style.css */
-/* Adicionamos apenas um estilo de "selecionado" */
-.pdp-sizes .size-option.selected {
+.pdp-color-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+}
+
+.pdp-color-swatch:hover {
+    transform: scale(1.1);
+}
+
+.pdp-color-swatch.selected {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--color-text-dark);
+}
+
+/* Tamanhos */
+.pdp-sizes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.pdp-size-option {
+    min-width: 45px;
+    height: 45px;
+    padding: 0 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-text-dark);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #fff;
+}
+
+.pdp-size-option:hover {
+    border-color: var(--color-text-dark);
+}
+
+.pdp-size-option.selected {
     background-color: var(--color-text-dark);
     color: var(--color-white);
     border-color: var(--color-text-dark);
 }
 
-.pdp-colors .color-swatch.selected {
-    box-shadow: 0 0 0 3px var(--color-white), 0 0 0 5px var(--color-accent);
-}
-
-
-/* --- Botão Principal --- */
+/* Botão Principal */
 .pdp-whatsapp-button {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.75rem;
     width: 100%;
     padding: 1rem;
+    margin-top: 1rem;
+    background-color: var(--color-whatsapp);
+    color: var(--color-white);
     font-size: 1.1rem;
     font-weight: 600;
     text-decoration: none;
-    border-radius: 8px;
-    background-color: var(--color-whatsapp);
-    color: var(--color-white);
     border: none;
-    cursor: pointer;
+    border-radius: 50px; /* Botão arredondado */
+    gap: 0.75rem;
     transition: all 0.3s ease;
-    margin-top: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);
 }
 
 .pdp-whatsapp-button:hover {
     background-color: #1DA851;
-    transform: scale(1.02);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(37, 211, 102, 0.3);
 }
 
-.pdp-whatsapp-button .fab {
-    font-size: 1.2rem;
+/* Botão Adicionar à Sacola (Estilo Secundário) */
+#add-to-bag-btn {
+    background-color: var(--color-text-dark);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
-
-.pdp-help-text {
-    font-size: 0.9rem;
-    color: var(--color-text-light);
-    text-align: center;
-    margin-top: 1rem;
-}
-.pdp-help-text i {
-    color: var(--color-accent);
-}
-
-/* --- Mensagem de Erro --- */
-.pdp-error-container {
-    text-align: center;
-    padding: 4rem 1rem;
-}
-.pdp-error-container h2 {
-    font-size: 1.8rem;
-    margin-bottom: 1rem;
-}
-.pdp-error-container p {
-    font-size: 1.1rem;
-    color: var(--color-text-light);
-    margin-bottom: 2rem;
+#add-to-bag-btn:hover {
+    background-color: #000;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
 }
 
 
-/* --- Responsividade (Mobile) --- */
+/* ============================================== */
+/* ==== RESPONSIVIDADE (Mobile) ==== */
+/* ============================================== */
 @media (max-width: 768px) {
-    .pdp-container {
-        flex-direction: column; /* Empilha as colunas */
+    .pdp-main-content {
+        margin-top: 1rem;
+        padding: 0 1rem;
+    }
+    
+    .pdp-layout {
+        flex-direction: column; /* Empilha galeria e info */
+        gap: 1.5rem;
     }
 
-    .pdp-gallery-container {
-        flex-direction: column-reverse; /* Coloca a miniatura embaixo */
+    .pdp-gallery-column {
+        position: static; /* Remove fixação no mobile */
+        width: 100%;
+        flex-direction: column-reverse; /* Miniaturas embaixo */
     }
 
-    .pdp-thumbnails {
+    .pdp-gallery-thumbnails {
+        width: 100%;
         flex-direction: row; /* Miniaturas na horizontal */
         overflow-x: auto;
-        padding-bottom: 0.5rem;
+        padding-bottom: 10px;
+        gap: 10px;
+    }
+    
+    .pdp-gallery-thumbnail-item {
+        width: 70px; /* Tamanho fixo da miniatura */
+        height: 90px;
+        flex-shrink: 0;
+    }
+    
+    .pdp-gallery-main-wrapper {
+        width: 100%;
     }
 
-    .pdp-thumbnail-img {
-        width: 60px;
-        height: 80px;
-        flex-shrink: 0; /* Impede que diminuam */
+    #pdp-main-img {
+        max-height: 500px; /* Altura máxima menor no mobile */
     }
-
-    .pdp-main-image img {
-        aspect-ratio: 1 / 1; /* Imagem quadrada no mobile */
+    
+    .pdp-info-column {
+        width: 100%;
     }
-
-    .pdp-info-container {
-        padding: 0 5%;
-    }
-
+    
     .pdp-title {
+        font-size: 1.8rem;
+    }
+    
+    .pdp-price {
         font-size: 1.6rem;
     }
-
-    .pdp-price {
-        font-size: 1.5rem;
-    }
-}
-/* ============================================== */
-/* ==== 17. ESTILOS DA SACOLA DE COMPRAS ==== */
-/* ============================================== */
-
-/* --- Contador no ícone --- */
-.bag-item-count {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background-color: var(--color-accent);
-    color: var(--color-white);
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    font-size: 0.75rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--color-white);
-    display: none; /* Escondido por padrão */
-}
-
-/* --- Overlay (Fundo) --- */
-.bag-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1010;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-.bag-overlay.open {
-    opacity: 1;
-    visibility: visible;
-}
-
-/* --- Sidebar (Painel) --- */
-.bag-sidebar {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: 380px;
-    height: 100%;
-    background-color: var(--color-white);
-    z-index: 1011;
-    transform: translateX(100%);
-    transition: transform 0.3s cubic-bezier(0.83, 0, 0.17, 1);
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 0 20px rgba(0,0,0,0.1);
-}
-.bag-sidebar.open {
-    transform: translateX(0);
-}
-
-.bag-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--color-border);
-}
-.bag-header h3 {
-    font-size: 1.2rem;
-    margin: 0;
-}
-.bag-close-btn {
-    background: none;
-    border: none;
-    font-size: 1.8rem;
-    color: var(--color-text-light);
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-}
-
-/* --- Conteúdo e Itens --- */
-.bag-content {
-    padding: 1rem;
-    overflow-y: auto;
-    flex-grow: 1;
-}
-.bag-empty-message {
-    text-align: center;
-    color: var(--color-text-light);
-    margin-top: 2rem;
-}
-.bag-item {
-    display: flex;
-    gap: 1rem;
-    border-bottom: 1px solid var(--color-border);
-    padding-bottom: 1rem;
-    margin-bottom: 1rem;
-}
-.bag-item-img {
-    width: 80px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 4px;
-    border: 1px solid var(--color-border);
-}
-.bag-item-details {
-    flex-grow: 1;
-}
-.bag-item-name {
-    font-weight: 600;
-    font-size: 0.9rem;
-    margin-bottom: 0.25rem;
-}
-.bag-item-info {
-    font-size: 0.85rem;
-    color: var(--color-text-light);
-}
-.bag-item-price {
-    font-weight: 500;
-    font-size: 0.9rem;
-    margin-top: 0.25rem;
-}
-.bag-item-remove {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    color: var(--color-text-light);
-    cursor: pointer;
-    align-self: flex-start;
-}
-.bag-item-remove:hover {
-    color: #DC143C; /* Vermelho */
-}
-
-/* --- Rodapé --- */
-.bag-footer {
-    padding: 1rem 1.5rem;
-    border-top: 1px solid var(--color-border);
-    background-color: var(--color-beige);
-}
-
-/* Responsividade */
-@media (max-width: 768px) {
-    .bag-sidebar {
-        width: 90%;
-        max-width: 320px;
-    }
-}
-/* ============================================== */
-/* ==== 18. ESTILO SACOLA MINIMALISTA ==== */
-/* ============================================== */
-
-/* 1. Remove o estilo de botão da sacola */
-.nav-icon-btn {
-    background-color: transparent;
-    border: none;
-    color: var(--color-text-dark); /* Ícone preto */
-    font-size: 1.4rem; /* Tamanho do ícone */
-    cursor: pointer;
-    position: relative; /* Para o contador */
-    padding: 5px; /* Pequeno espaço para clique */
-    transition: opacity 0.2s ease;
-    margin-right: 0.5rem; /* Espaço entre a sacola e o botão de Wpp */
-}
-
-.nav-icon-btn:hover {
-    opacity: 0.7;
-}
-
-/* 2. Reposiciona o contador para o novo ícone */
-.nav-icon-btn .bag-item-count {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 18px; /* Um pouco menor */
-    height: 18px;
-    font-size: 0.7rem;
-    border: 1px solid var(--color-white);
-}
-
-/* 3. Alinha os ícones no header */
-.nav-icons {
-    display: flex;
-    align-items: center;
-}
-/* ============================================== */
-/* ==== 20. BOTÃO DE OPÇÕES NO CARD ==== */
-/* ============================================== */
-
-/* 1. Remove os tamanhos e cores falsos dos cards */
-#loja .product-sizes,
-#loja .product-colors,
-#colecao .product-sizes,
-#colecao .product-colors {
-    display: none;
-}
-
-/* 2. Garante que o conteúdo do card possa ter um footer */
-.product-card-content {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1; /* Faz o conteúdo crescer */
-}
-
-/* 3. O footer que segura o botão */
-.product-card-footer {
-    margin-top: auto; /* Empurra para o final */
-    padding-top: 1rem; 
-}
-
-/* 4. O estilo do novo botão "Liquid Glass" */
-.card-add-button {
-    /* Estilo "Liquid Glass" */
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    background-color: rgba(34, 34, 34, 0.15); /* Fundo escuro leve */
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(34, 34, 34, 0.2);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    
-    /* Texto e Alinhamento */
-    text-decoration: none;
-    color: var(--color-text-dark);
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-align: center;
-    
-    /* Posição */
-    display: block;
-    margin-top: 1rem; /* Espaço do conteúdo acima */
-    
-    /* Transição */
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.card-add-button:hover {
-    background-color: rgba(34, 34, 34, 0.3);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-    color: var(--color-text-dark);
-    transform: scale(1.03);
 }

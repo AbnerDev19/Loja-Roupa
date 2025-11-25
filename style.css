@@ -1921,3 +1921,42 @@ a.product-card-link {
 .card-add-button i {
     display: none;
 }
+/* ============================================== */
+/* ==== ESTILO DO ÍCONE DE LOGIN (ADMIN) ==== */
+/* ============================================== */
+
+/* Estilo específico para o botão de login */
+.admin-login-btn {
+    text-decoration: none; /* Remove sublinhado do link */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px; /* Espaço entre o boneco e a sacola */
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+/* Aumenta um pouco o ícone para ficar legível */
+.admin-login-btn i {
+    font-size: 1.5rem; 
+}
+
+/* Efeito ao passar o mouse (Amarelo Escuro solicitado) */
+.admin-login-btn:hover {
+    color: var(--color-dark-yellow); /* #EAB308 */
+    transform: scale(1.1);
+}
+
+/* Ajuste para Mobile: Garante que cabe tudo na linha */
+@media (max-width: 768px) {
+    .nav-icons {
+        gap: 5px; /* Reduz espaço entre ícones no celular */
+    }
+    
+    .admin-login-btn {
+        margin-right: 5px;
+    }
+    
+    .admin-login-btn i {
+        font-size: 1.3rem; /* Levemente menor no mobile */
+    }
+}

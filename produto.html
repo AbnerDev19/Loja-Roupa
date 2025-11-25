@@ -6,8 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalhes do Produto - Crismon Modas</title>
     <link rel="icon" href="Fotos/favicon.png" type="image/png">
+    
     <link rel="stylesheet" href="loja-style.css">
     <link rel="stylesheet" href="produto.css">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
@@ -16,33 +18,46 @@
     <header class="card-nav-container">
         <nav class="card-nav" id="card-nav">
             <div class="card-nav-top">
-                <div class="hamburger-menu" id="hamburger-menu" role="button">
+                
+                <div class="hamburger-menu" id="hamburger-menu" role="button" aria-label="Abrir menu" tabIndex="0">
                     <div class="hamburger-line"></div>
                     <div class="hamburger-line"></div>
                 </div>
+
                 <div class="logo-container">
                     <a href="index.html" class="nav-logo">
-                        <img src="Fotos/logo-removebg-preview.png" alt="Logo">
+                        <img src="Fotos/logo-removebg-preview.png" alt="Logo Crismon Modas">
                         <span class="nav-logo-text">Crismon Modas</span>
                     </a>
                 </div>
+
                 <div class="nav-icons">
-                    <button class="nav-icon-btn" id="bag-icon-button">
+                    <a href="admin.html" class="nav-icon-btn admin-login-btn" aria-label="Área Administrativa" title="Login Admin">
+                        <i class="fas fa-user-circle"></i>
+                    </a>
+
+                    <button class="nav-icon-btn" id="bag-icon-button" aria-label="Abrir sacola">
                         <i class="fas fa-shopping-bag"></i>
                         <span id="bag-item-count" class="bag-item-count">0</span>
                     </button>
+
                     <a href="https://chat.whatsapp.com/BS9jxBn1V2eIzFxjMFlxXG" target="_blank" class="liquid-button-whatsapp">
                         <i class="fab fa-whatsapp"></i>
                         <span>Fale Conosco</span>
                     </a>
                 </div>
             </div>
+
             <div class="card-nav-content" id="card-nav-content" aria-hidden="true">
-                <div class="nav-card" style="background-color: var(--color-light-pink);">
+                <div class="nav-card" style="background-color: var(--color-light-pink); color: var(--color-text-dark);">
                     <div class="nav-card-label">Navegação</div>
                     <div class="nav-card-links">
-                        <a class="nav-card-link" href="index.html">Início</a>
-                        <a class="nav-card-link" href="loja.html">Loja</a>
+                        <a class="nav-card-link" href="index.html">
+                            <i class="fas fa-arrow-right nav-card-link-icon"></i> Início
+                        </a>
+                        <a class="nav-card-link" href="loja.html">
+                            <i class="fas fa-arrow-right nav-card-link-icon"></i> Voltar para Loja
+                        </a>
                     </div>
                 </div>
             </div>
@@ -51,7 +66,9 @@
 
     <main class="pdp-main-content">
         <div class="pdp-layout" id="pdp-content">
-            <p style="text-align:center; padding:4rem; width:100%;">Carregando detalhes...</p>
+            <div style="display: flex; justify-content: center; align-items: center; height: 300px; width: 100%;">
+                <p style="font-size: 1.2rem; color: #666;">Carregando detalhes do produto...</p>
+            </div>
         </div>
     </main>
     
@@ -72,10 +89,10 @@
     </aside>
 
     <footer class="footer">
-        <p>&copy; 2025 Crismon Modas.</p>
+        <p>&copy; 2025 Crismon Modas. Todos os direitos reservados.</p>
     </footer>
 
-    <script src="bag-script.js"></script>
+    <script src="loja-script.js"></script> <script src="bag-script.js"></script>
     <script type="module" src="produto-script.js"></script> 
 </body>
 </html>
