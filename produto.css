@@ -1,96 +1,114 @@
 /* ============================================== */
-/* ==== CSS DA PÁGINA DE PRODUTO (produto.css) ==== */
+/* ==== CSS DA PÁGINA DE PRODUTO (Refeito) ==== */
 /* ============================================== */
 
-/* Ajusta o 'main' para a página de produto */
 .pdp-main-content {
     background-color: var(--color-white);
     max-width: 1200px;
     margin: 2rem auto;
     padding: 0 5%;
+    min-height: 60vh;
 }
 
 .pdp-layout {
     display: flex;
-    gap: 2rem;
+    gap: 3rem;
+    align-items: flex-start;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* --- Coluna da Esquerda (Galeria) --- */
 .pdp-gallery-column {
-    flex: 6; /* Ocupa 60% do espaço */
+    flex: 1.5;
     display: flex;
     gap: 1rem;
+    position: sticky;
+    top: 100px;
 }
 
 .pdp-gallery-thumbnails {
-    flex: 1; /* Ocupa 1 parte */
+    width: 80px;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    max-height: 600px; /* Altura máxima para as miniaturas */
-    overflow-y: auto; /* Adiciona scroll se tiver muitas fotos */
+    max-height: 500px;
+    overflow-y: auto;
 }
 
-.pdp-gallery-thumbnail-item {
+/* Esconde barra de rolagem nas thumbnails */
+.pdp-gallery-thumbnails::-webkit-scrollbar {
+    width: 4px;
+}
+.pdp-gallery-thumbnails::-webkit-scrollbar-thumb {
+    background-color: #ddd;
+    border-radius: 4px;
+}
+
+.pdp-thumbnail-img {
     width: 100%;
-    aspect-ratio: 4 / 5; /* Proporção das miniaturas */
+    aspect-ratio: 3 / 4;
     border: 1px solid var(--color-border);
     border-radius: 8px;
     cursor: pointer;
     background-size: cover;
     background-position: center;
-    transition: border-color 0.2s ease;
-    opacity: 0.7;
+    transition: all 0.2s ease;
+    opacity: 0.6;
 }
 
-.pdp-gallery-thumbnail-item:hover {
-    border-color: var(--color-text-light);
+.pdp-thumbnail-img:hover,
+.pdp-thumbnail-img.active {
     opacity: 1;
-}
-
-.pdp-gallery-thumbnail-item.active {
     border-color: var(--color-text-dark);
-    opacity: 1;
-    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
 }
 
 .pdp-gallery-main-wrapper {
-    flex: 5; /* Ocupa 5 partes */
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
+    flex: 1;
+    border-radius: 12px;
     overflow: hidden;
-    height: fit-content; /* Ajusta altura ao conteúdo */
+    background-color: #f9f9f9;
+    border: 1px solid var(--color-border);
 }
 
-#pdp-gallery-main {
+#pdp-main-img {
     width: 100%;
+    height: auto;
+    max-height: 700px;
+    object-fit: cover;
     display: block;
 }
 
-
-/* --- Coluna da Direita (Informações) --- */
+/* --- Coluna da Direita (Infos) --- */
 .pdp-info-column {
-    flex: 4; /* Ocupa 40% do espaço */
-    padding-left: 1rem;
+    flex: 1;
+    padding-top: 0.5rem;
 }
 
-.pdp-label-codigo {
-    font-size: 0.9rem;
+.pdp-cod {
+    font-size: 0.85rem;
+    text-transform: uppercase;
     color: var(--color-text-light);
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
     display: block;
-    margin-bottom: 0.25rem;
 }
 
 .pdp-title {
-    font-size: 2.2rem;
-    font-weight: 600;
+    font-size: 2.5rem;
+    font-weight: 700;
     color: var(--color-text-dark);
-    line-height: 1.2;
+    line-height: 1.1;
     margin-bottom: 1rem;
 }
 
 .pdp-price-block {
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid var(--color-border);
 }
@@ -107,19 +125,20 @@
     color: var(--color-text-light);
 }
 
+/* --- Opções (Cores e Tamanhos) --- */
 .pdp-options-block {
     margin-bottom: 1.5rem;
 }
 
 .pdp-options-label {
     font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--color-text-dark);
     display: block;
     margin-bottom: 0.75rem;
 }
 
-/* Opções de Cores */
+/* Cores */
 .pdp-colors {
     display: flex;
     flex-wrap: wrap;
@@ -127,12 +146,12 @@
 }
 
 .pdp-color-swatch {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     border: 1px solid rgba(0,0,0,0.1);
     cursor: pointer;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     position: relative;
 }
 
@@ -140,30 +159,33 @@
     transform: scale(1.1);
 }
 
-/* Tooltip com o nome da cor */
+.pdp-color-swatch.selected {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--color-text-dark);
+    transform: scale(1.1);
+}
+
+/* Tooltip da cor */
 .pdp-color-swatch::after {
-    content: attr(data-tooltip); /* Pega o texto do atributo 'data-tooltip' */
+    content: attr(title);
     position: absolute;
-    bottom: 120%; /* Aparece acima */
+    bottom: 120%;
     left: 50%;
     transform: translateX(-50%);
-    background-color: var(--color-text-dark);
-    color: var(--color-white);
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
+    background: #222;
+    color: #fff;
+    padding: 4px 8px;
     font-size: 0.75rem;
-    font-weight: 500;
-    white-space: nowrap;
+    border-radius: 4px;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.2s;
+    white-space: nowrap;
 }
 .pdp-color-swatch:hover::after {
     opacity: 1;
 }
 
-
-/* Opções de Tamanho */
+/* Tamanhos */
 .pdp-sizes {
     display: flex;
     flex-wrap: wrap;
@@ -173,7 +195,7 @@
 .pdp-size-option {
     min-width: 45px;
     height: 45px;
-    padding: 0 0.5rem;
+    padding: 0 1rem;
     border: 1px solid var(--color-border);
     border-radius: 8px;
     display: flex;
@@ -181,349 +203,88 @@
     justify-content: center;
     font-size: 0.9rem;
     font-weight: 500;
-    color: var(--color-text-light);
+    color: var(--color-text-dark);
     cursor: pointer;
     transition: all 0.2s ease;
+    background-color: #fff;
 }
 
 .pdp-size-option:hover {
+    border-color: var(--color-text-dark);
     background-color: var(--color-beige);
-    border-color: #ccc;
 }
 
-.pdp-size-option.active {
+.pdp-size-option.selected {
     background-color: var(--color-text-dark);
     color: var(--color-white);
     border-color: var(--color-text-dark);
 }
 
-/* Botão Principal (WhatsApp) */
-.pdp-whatsapp-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 1rem;
-    margin-top: 2rem;
-    background-color: var(--color-whatsapp);
-    color: var(--color-white);
-    font-size: 1.1rem;
-    font-weight: 600;
-    text-decoration: none;
-    border-radius: 8px;
-    gap: 0.75rem;
-    transition: all 0.3s ease;
-}
-
-.pdp-whatsapp-button:hover {
-    background-color: #1DA851;
-    transform: scale(1.02);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-.pdp-whatsapp-button .fab {
-    font-size: 1.3rem;
-}
-
-/* Link de Voltar */
-.pdp-back-link {
-    display: inline-block;
-    margin-top: 1.5rem;
-    font-size: 0.9rem;
-    color: var(--color-text-light);
-    text-decoration: none;
-    gap: 0.5rem;
-    align-items: center;
-}
-
-.pdp-back-link:hover {
-    color: var(--color-text-dark);
-    text-decoration: underline;
-}
-
-
-/* ============================================== */
-/* ==== RESPONSIVIDADE (Mobile) ==== */
-/* ============================================== */
-@media (max-width: 768px) {
-    .pdp-main-content {
-        margin: 1rem auto; /* Menos margem no topo */
-    }
-    
-    .pdp-layout {
-        flex-direction: column; /* Empilha as colunas */
-    }
-
-    .pdp-gallery-column {
-        flex-direction: column-reverse; /* Coloca as miniaturas embaixo */
-        gap: 0.75rem;
-    }
-
-    .pdp-gallery-thumbnails {
-        flex-direction: row; /* Miniaturas em linha */
-        overflow-x: auto; /* Scroll horizontal */
-        overflow-y: hidden;
-        padding-bottom: 0.5rem; /* Espaço para o scrollbar */
-        max-height: none;
-    }
-    
-    .pdp-gallery-thumbnail-item {
-        flex: 0 0 65px; /* Tamanho fixo para as miniaturas */
-        height: 80px;
-    }
-    
-    .pdp-info-column {
-        padding-left: 0;
-    }
-    
-    .pdp-title {
-        font-size: 1.8rem;
-    }
-    
-    .pdp-price {
-        font-size: 1.7rem;
-    }
-}
-/* ============================================== */
-/* ==== 17. ESTILOS DA SACOLA DE COMPRAS ==== */
-/* ============================================== */
-
-/* --- Contador no ícone --- */
-.bag-item-count {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background-color: var(--color-accent);
-    color: var(--color-white);
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    font-size: 0.75rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--color-white);
-    display: none; /* Escondido por padrão */
-}
-
-/* --- Overlay (Fundo) --- */
-.bag-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1010;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-.bag-overlay.open {
-    opacity: 1;
-    visibility: visible;
-}
-
-/* --- Sidebar (Painel) --- */
-.bag-sidebar {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: 380px;
-    height: 100%;
-    background-color: var(--color-white);
-    z-index: 1011;
-    transform: translateX(100%);
-    transition: transform 0.3s cubic-bezier(0.83, 0, 0.17, 1);
+/* Botões de Ação */
+.pdp-action-buttons {
     display: flex;
     flex-direction: column;
-    box-shadow: 0 0 20px rgba(0,0,0,0.1);
-}
-.bag-sidebar.open {
-    transform: translateX(0);
-}
-
-.bag-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--color-border);
-}
-.bag-header h3 {
-    font-size: 1.2rem;
-    margin: 0;
-}
-.bag-close-btn {
-    background: none;
-    border: none;
-    font-size: 1.8rem;
-    color: var(--color-text-light);
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-}
-
-/* --- Conteúdo e Itens --- */
-.bag-content {
-    padding: 1rem;
-    overflow-y: auto;
-    flex-grow: 1;
-}
-.bag-empty-message {
-    text-align: center;
-    color: var(--color-text-light);
+    gap: 1rem;
     margin-top: 2rem;
 }
-.bag-item {
-    display: flex;
-    gap: 1rem;
-    border-bottom: 1px solid var(--color-border);
-    padding-bottom: 1rem;
-    margin-bottom: 1rem;
-}
-.bag-item-img {
-    width: 80px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 4px;
-    border: 1px solid var(--color-border);
-}
-.bag-item-details {
-    flex-grow: 1;
-}
-.bag-item-name {
+
+.pdp-btn {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 50px;
+    font-size: 1rem;
     font-weight: 600;
-    font-size: 0.9rem;
-    margin-bottom: 0.25rem;
-}
-.bag-item-info {
-    font-size: 0.85rem;
-    color: var(--color-text-light);
-}
-.bag-item-price {
-    font-weight: 500;
-    font-size: 0.9rem;
-    margin-top: 0.25rem;
-}
-.bag-item-remove {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    color: var(--color-text-light);
     cursor: pointer;
-    align-self: flex-start;
-}
-.bag-item-remove:hover {
-    color: #DC143C; /* Vermelho */
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-/* --- Rodapé --- */
-.bag-footer {
-    padding: 1rem 1.5rem;
-    border-top: 1px solid var(--color-border);
-    background-color: var(--color-beige);
+.pdp-btn-bag {
+    background-color: var(--color-text-dark);
+    color: var(--color-white);
+}
+.pdp-btn-bag:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.pdp-btn-whatsapp {
+    background-color: var(--color-whatsapp);
+    color: var(--color-white);
+    text-decoration: none;
+}
+.pdp-btn-whatsapp:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
 }
 
 /* Responsividade */
 @media (max-width: 768px) {
-    .bag-sidebar {
-        width: 90%;
-        max-width: 320px;
+    .pdp-layout {
+        flex-direction: column;
+        gap: 2rem;
     }
-}
-/* ============================================== */
-/* ==== 18. ESTILO SACOLA MINIMALISTA ==== */
-/* ============================================== */
-
-/* 1. Remove o estilo de botão da sacola */
-.nav-icon-btn {
-    background-color: transparent;
-    border: none;
-    color: var(--color-text-dark); /* Ícone preto */
-    font-size: 1.4rem; /* Tamanho do ícone */
-    cursor: pointer;
-    position: relative; /* Para o contador */
-    padding: 5px; /* Pequeno espaço para clique */
-    transition: opacity 0.2s ease;
-    margin-right: 0.5rem; /* Espaço entre a sacola e o botão de Wpp */
-}
-
-.nav-icon-btn:hover {
-    opacity: 0.7;
-}
-
-/* 2. Reposiciona o contador para o novo ícone */
-.nav-icon-btn .bag-item-count {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 18px; /* Um pouco menor */
-    height: 18px;
-    font-size: 0.7rem;
-    border: 1px solid var(--color-white);
-}
-
-/* 3. Alinha os ícones no header */
-.nav-icons {
-    display: flex;
-    align-items: center;
-}
-/* ============================================== */
-/* ==== 20. BOTÃO DE OPÇÕES NO CARD ==== */
-/* ============================================== */
-
-/* 1. Remove os tamanhos e cores falsos dos cards */
-#loja .product-sizes,
-#loja .product-colors,
-#colecao .product-sizes,
-#colecao .product-colors {
-    display: none;
-}
-
-/* 2. Garante que o conteúdo do card possa ter um footer */
-.product-card-content {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1; /* Faz o conteúdo crescer */
-}
-
-/* 3. O footer que segura o botão */
-.product-card-footer {
-    margin-top: auto; /* Empurra para o final */
-    padding-top: 1rem; 
-}
-
-/* 4. O estilo do novo botão "Liquid Glass" */
-.card-add-button {
-    /* Estilo "Liquid Glass" */
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    background-color: rgba(34, 34, 34, 0.15); /* Fundo escuro leve */
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(34, 34, 34, 0.2);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    
-    /* Texto e Alinhamento */
-    text-decoration: none;
-    color: var(--color-text-dark);
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-align: center;
-    
-    /* Posição */
-    display: block;
-    margin-top: 1rem; /* Espaço do conteúdo acima */
-    
-    /* Transição */
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.card-add-button:hover {
-    background-color: rgba(34, 34, 34, 0.3);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-    color: var(--color-text-dark);
-    transform: scale(1.03);
+    .pdp-gallery-column {
+        position: static;
+        flex-direction: column-reverse;
+    }
+    .pdp-gallery-thumbnails {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+        max-height: none;
+        padding-bottom: 10px;
+    }
+    .pdp-thumbnail-img {
+        width: 70px;
+        height: 90px;
+        flex-shrink: 0;
+    }
+    .pdp-title {
+        font-size: 1.8rem;
+    }
 }

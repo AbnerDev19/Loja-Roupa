@@ -1,28 +1,33 @@
 /* ============================================== */
-/* ==== CSS DA PÁGINA DE PRODUTO (produto.css) ==== */
+/* ==== CSS DA PÁGINA DE PRODUTO (Refeito) ==== */
 /* ============================================== */
 
-/* Ajusta o 'main' para a página de produto */
 .pdp-main-content {
     background-color: var(--color-white);
     max-width: 1200px;
     margin: 2rem auto;
     padding: 0 5%;
-    min-height: 80vh; /* Garante altura mínima */
+    min-height: 60vh;
 }
 
 .pdp-layout {
     display: flex;
-    gap: 3rem; /* Mais espaço entre as colunas */
+    gap: 3rem;
     align-items: flex-start;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* --- Coluna da Esquerda (Galeria) --- */
 .pdp-gallery-column {
-    flex: 1.2; /* Ocupa um pouco mais de espaço que antes */
+    flex: 1.5;
     display: flex;
     gap: 1rem;
-    position: sticky; /* Mantém a galeria fixa ao rolar se o texto for longo */
+    position: sticky;
     top: 100px;
 }
 
@@ -31,13 +36,22 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    max-height: 600px;
+    max-height: 500px;
     overflow-y: auto;
 }
 
-.pdp-gallery-thumbnail-item {
+/* Esconde barra de rolagem nas thumbnails */
+.pdp-gallery-thumbnails::-webkit-scrollbar {
+    width: 4px;
+}
+.pdp-gallery-thumbnails::-webkit-scrollbar-thumb {
+    background-color: #ddd;
+    border-radius: 4px;
+}
+
+.pdp-thumbnail-img {
     width: 100%;
-    aspect-ratio: 3 / 4; /* Proporção padrão retrato */
+    aspect-ratio: 3 / 4;
     border: 1px solid var(--color-border);
     border-radius: 8px;
     cursor: pointer;
@@ -47,59 +61,50 @@
     opacity: 0.6;
 }
 
-.pdp-gallery-thumbnail-item:hover {
+.pdp-thumbnail-img:hover,
+.pdp-thumbnail-img.active {
     opacity: 1;
     border-color: var(--color-text-dark);
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
 }
 
-.pdp-gallery-thumbnail-item.active {
-    border-color: var(--color-text-dark);
-    opacity: 1;
-    box-shadow: 0 0 0 2px var(--color-text-dark);
-}
-
-/* --- CORREÇÃO DA IMAGEM GIGANTE AQUI --- */
 .pdp-gallery-main-wrapper {
     flex: 1;
     border-radius: 12px;
     overflow: hidden;
     background-color: #f9f9f9;
     border: 1px solid var(--color-border);
-    position: relative;
 }
 
-/* Seletor corrigido para bater com o JS (pdp-main-img) */
 #pdp-main-img {
     width: 100%;
     height: auto;
-    max-height: 650px; /* Limite de altura para não estourar a tela */
-    object-fit: cover; /* Cobre a área sem distorcer */
-    aspect-ratio: 3 / 4; /* Mantém a proporção de foto de moda */
+    max-height: 700px;
+    object-fit: cover;
     display: block;
 }
 
-
-/* --- Coluna da Direita (Informações) --- */
+/* --- Coluna da Direita (Infos) --- */
 .pdp-info-column {
     flex: 1;
     padding-top: 0.5rem;
 }
 
-.pdp-label-codigo {
+.pdp-cod {
     font-size: 0.85rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
     color: var(--color-text-light);
-    display: block;
+    letter-spacing: 1px;
     margin-bottom: 0.5rem;
+    display: block;
 }
 
 .pdp-title {
-    font-size: 2.2rem;
+    font-size: 2.5rem;
     font-weight: 700;
     color: var(--color-text-dark);
-    line-height: 1.2;
-    margin-bottom: 1.5rem;
+    line-height: 1.1;
+    margin-bottom: 1rem;
 }
 
 .pdp-price-block {
@@ -113,7 +118,6 @@
     font-weight: 600;
     color: var(--color-text-dark);
     display: block;
-    margin-bottom: 0.25rem;
 }
 
 .pdp-installments {
@@ -121,7 +125,7 @@
     color: var(--color-text-light);
 }
 
-/* Opções (Cores e Tamanhos) */
+/* --- Opções (Cores e Tamanhos) --- */
 .pdp-options-block {
     margin-bottom: 1.5rem;
 }
@@ -142,8 +146,8 @@
 }
 
 .pdp-color-swatch {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     border: 1px solid rgba(0,0,0,0.1);
     cursor: pointer;
@@ -157,6 +161,28 @@
 
 .pdp-color-swatch.selected {
     box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--color-text-dark);
+    transform: scale(1.1);
+}
+
+/* Tooltip da cor */
+.pdp-color-swatch::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #222;
+    color: #fff;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+}
+.pdp-color-swatch:hover::after {
+    opacity: 1;
 }
 
 /* Tamanhos */
@@ -185,6 +211,7 @@
 
 .pdp-size-option:hover {
     border-color: var(--color-text-dark);
+    background-color: var(--color-beige);
 }
 
 .pdp-size-option.selected {
@@ -193,95 +220,71 @@
     border-color: var(--color-text-dark);
 }
 
-/* Botão Principal */
-.pdp-whatsapp-button {
+/* Botões de Ação */
+.pdp-action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.pdp-btn {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    padding: 1rem;
-    margin-top: 1rem;
+    gap: 0.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.pdp-btn-bag {
+    background-color: var(--color-text-dark);
+    color: var(--color-white);
+}
+.pdp-btn-bag:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.pdp-btn-whatsapp {
     background-color: var(--color-whatsapp);
     color: var(--color-white);
-    font-size: 1.1rem;
-    font-weight: 600;
     text-decoration: none;
-    border: none;
-    border-radius: 50px; /* Botão arredondado */
-    gap: 0.75rem;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);
 }
-
-.pdp-whatsapp-button:hover {
-    background-color: #1DA851;
+.pdp-btn-whatsapp:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(37, 211, 102, 0.3);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
 }
 
-/* Botão Adicionar à Sacola (Estilo Secundário) */
-#add-to-bag-btn {
-    background-color: var(--color-text-dark);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-#add-to-bag-btn:hover {
-    background-color: #000;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-}
-
-
-/* ============================================== */
-/* ==== RESPONSIVIDADE (Mobile) ==== */
-/* ============================================== */
+/* Responsividade */
 @media (max-width: 768px) {
-    .pdp-main-content {
-        margin-top: 1rem;
-        padding: 0 1rem;
-    }
-    
     .pdp-layout {
-        flex-direction: column; /* Empilha galeria e info */
-        gap: 1.5rem;
+        flex-direction: column;
+        gap: 2rem;
     }
-
     .pdp-gallery-column {
-        position: static; /* Remove fixação no mobile */
-        width: 100%;
-        flex-direction: column-reverse; /* Miniaturas embaixo */
+        position: static;
+        flex-direction: column-reverse;
     }
-
     .pdp-gallery-thumbnails {
         width: 100%;
-        flex-direction: row; /* Miniaturas na horizontal */
+        flex-direction: row;
         overflow-x: auto;
+        max-height: none;
         padding-bottom: 10px;
-        gap: 10px;
     }
-    
-    .pdp-gallery-thumbnail-item {
-        width: 70px; /* Tamanho fixo da miniatura */
+    .pdp-thumbnail-img {
+        width: 70px;
         height: 90px;
         flex-shrink: 0;
     }
-    
-    .pdp-gallery-main-wrapper {
-        width: 100%;
-    }
-
-    #pdp-main-img {
-        max-height: 500px; /* Altura máxima menor no mobile */
-    }
-    
-    .pdp-info-column {
-        width: 100%;
-    }
-    
     .pdp-title {
         font-size: 1.8rem;
-    }
-    
-    .pdp-price {
-        font-size: 1.6rem;
     }
 }

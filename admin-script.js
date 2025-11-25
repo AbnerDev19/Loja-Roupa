@@ -33,12 +33,12 @@ const passwordInput = document.getElementById("admin-password");
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        loginScreen.style.display = "none";
-        adminPanel.style.display = "block";
+        if(loginScreen) loginScreen.style.display = "none";
+        if(adminPanel) adminPanel.style.display = "block";
         carregarProdutos();
     } else {
-        loginScreen.style.display = "flex";
-        adminPanel.style.display = "none";
+        if(loginScreen) loginScreen.style.display = "flex";
+        if(adminPanel) adminPanel.style.display = "none";
     }
 });
 
@@ -99,7 +99,6 @@ if(productForm) {
             corNomes: stringToArray(document.getElementById("prod-color-names").value),
             cores: stringToArray(document.getElementById("prod-colors").value),
             fotos: textToArray(document.getElementById("prod-photos").value),
-            // Mantemos 'foto' simples para compatibilidade com códigos antigos que esperam string
             foto: textToArray(document.getElementById("prod-photos").value)[0] || "", 
             data_atualizacao: new Date()
         };
@@ -124,7 +123,8 @@ if(productForm) {
 // --- 4. CARREGAR LISTA (Realtime) ---
 function carregarProdutos() {
     const lista = document.getElementById("admin-product-list");
-    
+    if(!lista) return;
+
     onSnapshot(collection(db, collectionName), (snapshot) => {
         lista.innerHTML = "";
         
@@ -137,7 +137,6 @@ function carregarProdutos() {
             const prod = documento.data();
             const id = documento.id;
             
-            // Garante que existam arrays para evitar erro
             const tamanhosStr = prod.tamanhos ? prod.tamanhos.join(", ") : "";
             const imgCapa = prod.fotos && prod.fotos.length > 0 ? prod.fotos[0] : (prod.foto || "");
 
@@ -152,15 +151,17 @@ function carregarProdutos() {
                     <button class="action-btn btn-edit" title="Editar">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="action-btn btn-delete" onclick="window.deletar('${id}')" title="Excluir">
+                    <button class="action-btn btn-delete" title="Excluir">
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
             `;
             
-            // Adiciona evento de click no botão editar (para passar o objeto complexo)
             const btnEdit = row.querySelector(".btn-edit");
             btnEdit.addEventListener("click", () => editarProduto(id, prod));
+
+            const btnDelete = row.querySelector(".btn-delete");
+            btnDelete.addEventListener("click", () => window.deletar(id));
 
             lista.appendChild(row);
         });
@@ -186,12 +187,10 @@ function editarProduto(id, prod) {
     document.getElementById("prod-installments").value = prod.parcelas || "";
     document.getElementById("prod-category").value = prod.categoria || "vestidos";
     
-    // Arrays para String
     document.getElementById("prod-sizes").value = prod.tamanhos ? prod.tamanhos.join(", ") : "";
     document.getElementById("prod-color-names").value = prod.corNomes ? prod.corNomes.join(", ") : "";
     document.getElementById("prod-colors").value = prod.cores ? prod.cores.join(", ") : "";
     
-    // Fotos (Array para linhas)
     if (prod.fotos && Array.isArray(prod.fotos)) {
         document.getElementById("prod-photos").value = prod.fotos.join("\n");
     } else if (prod.foto) {
@@ -205,13 +204,12 @@ function editarProduto(id, prod) {
 };
 
 
-// --- 5. MIGRAÇÃO DE BANCO DE DADOS (Botão Amarelo) ---
+// --- 5. MIGRAÇÃO DE BANCO DE DADOS INTELIGENTE ---
 const btnMigrate = document.getElementById("btn-migrate");
 if (btnMigrate) {
     btnMigrate.addEventListener("click", async () => {
-        if (!confirm("ATENÇÃO: Isso vai ler todos os produtos do arquivo 'produtos-db.js' e enviá-los para o Firebase. Deseja continuar?")) return;
+        if (!confirm("ATENÇÃO: Isso vai ler todos os produtos do arquivo 'produtos-db.js', CORRIGIR AS CATEGORIAS e enviá-los para o Firebase. Deseja continuar?")) return;
 
-        // Verifica se a variável catalogo existe (carregada do produtos-db.js no HTML)
         if (typeof catalogo === 'undefined') {
             alert("Erro: Objeto 'catalogo' não encontrado. Verifique se produtos-db.js foi carregado.");
             return;
@@ -220,19 +218,37 @@ if (btnMigrate) {
         const batch = writeBatch(db);
         let count = 0;
 
-        // Itera sobre o catálogo estático
         for (const [idAntigo, prod] of Object.entries(catalogo)) {
-            // Cria uma referência de documento nova (ID automático ou use idAntigo se preferir)
-            // Aqui usaremos o idAntigo como ID do documento para manter consistência
             const docRef = doc(db, collectionName, idAntigo);
             
-            // Prepara os dados
+            // --- LÓGICA PARA DETECTAR CATEGORIA AUTOMATICAMENTE ---
+            let categoriaDetectada = "destaques"; // Padrão
+            
+            // Verifica a primeira letra do ID ou palavras no nome
+            const idUpper = idAntigo.toUpperCase();
+            const nomeLower = prod.nome.toLowerCase();
+
+            if (idUpper.startsWith("V") || nomeLower.includes("vestido")) {
+                categoriaDetectada = "vestidos";
+            } else if (idUpper.startsWith("S") || nomeLower.includes("saia")) {
+                categoriaDetectada = "saias";
+            } else if (idUpper.startsWith("B") || nomeLower.includes("blusa")) {
+                categoriaDetectada = "blusas";
+            } else if (idUpper.startsWith("C") || nomeLower.includes("calça")) {
+                categoriaDetectada = "calcas";
+            } else if (idUpper.startsWith("F") || nomeLower.includes("fardamento")) {
+                categoriaDetectada = "fardamentos";
+            } else if (idUpper.startsWith("T") || nomeLower.includes("camiseta") || nomeLower.includes("t-shirt")) {
+                categoriaDetectada = "camisetas";
+            } else if (idUpper.startsWith("M") || nomeLower.includes("macacão")) {
+                categoriaDetectada = "vestidos"; // Macacão geralmente entra com vestidos ou cria categoria nova
+            }
+
             const dadosParaSalvar = {
                 nome: prod.nome,
                 preco: prod.preco,
                 parcelas: prod.parcelas,
-                // Tenta adivinhar a categoria baseada no nome ou define padrão
-                categoria: "destaques", // Você pode melhorar essa lógica depois
+                categoria: categoriaDetectada, // Usa a categoria detectada
                 tamanhos: prod.tamanhos || [],
                 cores: prod.cores || [],
                 corNomes: prod.corNomes || [],
@@ -247,7 +263,8 @@ if (btnMigrate) {
 
         try {
             await batch.commit();
-            alert(`Sucesso! ${count} produtos foram migrados para o banco de dados.`);
+            alert(`Sucesso! ${count} produtos foram migrados e categorizados corretamente.`);
+            location.reload(); // Recarrega para ver a tabela atualizada
         } catch (e) {
             console.error(e);
             alert("Erro na migração: " + e.message);

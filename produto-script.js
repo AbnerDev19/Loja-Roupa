@@ -1,10 +1,11 @@
 /* =================================================== */
-/* ==== SCRIPT DE PRODUTO (Firebase Integrado) ==== */
+/* ==== SCRIPT DE PRODUTO (Refatorado e Corrigido) ==== */
 /* =================================================== */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+// Configuração Firebase (igual aos outros arquivos)
 const firebaseConfig = {
   apiKey: "AIzaSyCxznTW2u5DMawvTratTuZ-bFpQoDb4XlQ",
   authDomain: "crismon-modas.firebaseapp.com",
@@ -19,61 +20,83 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 document.addEventListener("DOMContentLoaded", async () => {
+    const loadingEl = document.getElementById('pdp-loading');
+    const contentEl = document.getElementById('pdp-content');
 
     // 1. Pega o ID da URL
     const params = new URLSearchParams(window.location.search);
     const productId = params.get('id');
 
     if (!productId) {
+        alert("Produto não especificado.");
         window.location.href = "loja.html";
         return;
     }
 
-    // 2. Busca no Firebase
-    const docRef = doc(db, "produtos", productId);
-    const docSnap = await getDoc(docRef);
+    try {
+        // 2. Busca no Firebase
+        const docRef = doc(db, "produtos", productId);
+        const docSnap = await getDoc(docRef);
 
-    if (!docSnap.exists()) {
-        document.getElementById('pdp-content').innerHTML = `
-            <div class="pdp-error-container">
-                <h2>Produto não encontrado</h2>
-                <p>Este produto pode ter sido removido.</p>
-                <a href="loja.html" class="pdp-whatsapp-button">Voltar para a Loja</a>
-            </div>
-        `;
-        return;
+        loadingEl.style.display = 'none';
+
+        if (docSnap.exists()) {
+            const produto = docSnap.data();
+            renderProductPage(productId, produto);
+            contentEl.style.display = 'flex';
+        } else {
+            contentEl.style.display = 'block';
+            contentEl.innerHTML = `
+                <div style="text-align:center; padding:3rem;">
+                    <h2>Produto não encontrado</h2>
+                    <p>Talvez ele tenha sido removido.</p>
+                    <a href="loja.html" class="pdp-btn pdp-btn-bag" style="width:200px; margin: 2rem auto;">Voltar para Loja</a>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error("Erro ao carregar produto:", error);
+        loadingEl.innerHTML = "<p>Erro ao carregar. Tente novamente.</p>";
     }
-
-    const produto = docSnap.data();
-    renderProductPage(productId, produto);
 });
 
-// --- Renderização da Página ---
 function renderProductPage(id, produto) {
     const container = document.getElementById('pdp-content');
     
-    // Prepara imagens
-    const fotos = (produto.fotos && produto.fotos.length > 0) ? produto.fotos : [(produto.foto || 'placeholder.jpg')];
-    
+    // Garante arrays válidos
+    const fotos = (produto.fotos && produto.fotos.length > 0) ? produto.fotos : [(produto.foto || 'Fotos/placeholder.jpg')];
+    const tamanhos = produto.tamanhos || [];
+    const cores = produto.cores || [];
+    const corNomes = produto.corNomes || [];
+
     // HTML da Galeria
-    let thumbnailsHTML = fotos.map((foto, index) => `
+    const thumbnailsHTML = fotos.map((foto, index) => `
         <div class="pdp-thumbnail-img ${index === 0 ? 'active' : ''}" 
-             style="background-image: url('${foto}')" 
-             onclick="changeMainImage(this, '${foto}')">
+             data-src="${foto}">
+             <img src="${foto}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;">
         </div>
     `).join('');
 
     // HTML dos Tamanhos
-    let sizesHTML = (produto.tamanhos || []).map(t => 
-        `<div class="size-option" onclick="selectSize(this)">${t}</div>`
-    ).join('');
+    let sizesHTML = '';
+    if(tamanhos.length > 0) {
+        sizesHTML = tamanhos.map(t => `<div class="pdp-size-option" data-value="${t}">${t}</div>`).join('');
+    } else {
+        sizesHTML = '<p style="color:#666; font-size:0.9rem;">Tamanho Único</p>';
+    }
 
     // HTML das Cores
-    let colorsHTML = (produto.cores || []).map((cor, i) => {
-        const nome = (produto.corNomes && produto.corNomes[i]) ? produto.corNomes[i] : 'Cor';
-        return `<div class="color-swatch" style="background-color: ${cor}" title="${nome}" data-name="${nome}" onclick="selectColor(this)"></div>`;
-    }).join('');
+    let colorsHTML = '';
+    if(cores.length > 0) {
+        colorsHTML = cores.map((cor, i) => {
+            const nome = corNomes[i] || 'Cor';
+            return `<div class="pdp-color-swatch" style="background-color: ${cor}" title="${nome}" data-name="${nome}"></div>`;
+        }).join('');
+    } else {
+        colorsHTML = '<p style="color:#666; font-size:0.9rem;">Cor Única</p>';
+    }
 
+    // Monta o Layout
     container.innerHTML = `
         <div class="pdp-gallery-column">
             <div class="pdp-gallery-thumbnails">${thumbnailsHTML}</div>
@@ -93,78 +116,109 @@ function renderProductPage(id, produto) {
 
             <div class="pdp-options-block">
                 <span class="pdp-options-label">Cores:</span>
-                <div class="pdp-colors">${colorsHTML}</div>
+                <div class="pdp-colors" id="color-options">${colorsHTML}</div>
             </div>
 
             <div class="pdp-options-block">
                 <span class="pdp-options-label">Tamanhos:</span>
-                <div class="pdp-sizes">${sizesHTML}</div>
+                <div class="pdp-sizes" id="size-options">${sizesHTML}</div>
             </div>
 
-            <button class="pdp-whatsapp-button" id="add-to-bag-btn" style="background-color:#222; margin-bottom:10px;">
-                <i class="fas fa-shopping-bag"></i> Adicionar à Sacola
-            </button>
-
-            <button class="pdp-whatsapp-button" id="whatsapp-order-btn">
-                <i class="fab fa-whatsapp"></i> Pedir no WhatsApp
-            </button>
+            <div class="pdp-action-buttons">
+                <button class="pdp-btn pdp-btn-bag" id="btn-add-sacola">
+                    <i class="fas fa-shopping-bag"></i> Adicionar à Sacola
+                </button>
+                
+                <button class="pdp-btn pdp-btn-whatsapp" id="btn-whatsapp-direto">
+                    <i class="fab fa-whatsapp"></i> Pedir no WhatsApp
+                </button>
+            </div>
         </div>
     `;
 
-    // --- Lógica de Seleção e Botões ---
-    let selectedSize = null;
-    let selectedColor = null;
+    // --- Lógica de Eventos (Agora segura e encapsulada) ---
+    
+    // 1. Galeria de Imagens
+    const mainImg = document.getElementById('pdp-main-img');
+    const thumbs = container.querySelectorAll('.pdp-thumbnail-img');
+    
+    thumbs.forEach(thumb => {
+        thumb.addEventListener('click', function() {
+            // Remove active de todos
+            thumbs.forEach(t => t.classList.remove('active'));
+            // Adiciona no clicado
+            this.classList.add('active');
+            // Troca imagem principal
+            mainImg.src = this.dataset.src;
+        });
+    });
 
-    // Funções globais para o onclick HTML funcionar dentro do módulo
-    window.changeMainImage = (el, src) => {
-        document.querySelectorAll('.pdp-thumbnail-img').forEach(t => t.classList.remove('active'));
-        el.classList.add('active');
-        document.getElementById('pdp-main-img').src = src;
-    };
+    // 2. Seleção de Tamanho
+    let selectedSize = (tamanhos.length === 0) ? 'Único' : null;
+    const sizeOpts = container.querySelectorAll('.pdp-size-option');
+    
+    sizeOpts.forEach(opt => {
+        opt.addEventListener('click', function() {
+            sizeOpts.forEach(s => s.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedSize = this.dataset.value;
+        });
+    });
 
-    window.selectSize = (el) => {
-        document.querySelectorAll('.size-option').forEach(s => s.classList.remove('selected'));
-        el.classList.add('selected');
-        selectedSize = el.innerText;
-    };
+    // 3. Seleção de Cor
+    let selectedColor = (cores.length === 0) ? 'Única' : null;
+    const colorOpts = container.querySelectorAll('.pdp-color-swatch');
+    
+    colorOpts.forEach(opt => {
+        opt.addEventListener('click', function() {
+            colorOpts.forEach(c => c.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedColor = this.dataset.name;
+        });
+    });
 
-    window.selectColor = (el) => {
-        document.querySelectorAll('.color-swatch').forEach(c => c.classList.remove('selected'));
-        el.classList.add('selected');
-        selectedColor = el.dataset.name;
-    };
-
-    // Adicionar à Sacola
-    document.getElementById('add-to-bag-btn').addEventListener('click', () => {
-        if(!selectedSize && (produto.tamanhos && produto.tamanhos.length > 0)) {
-            alert("Por favor, selecione um tamanho."); return;
+    // 4. Botão Adicionar à Sacola
+    document.getElementById('btn-add-sacola').addEventListener('click', () => {
+        if(!selectedSize && tamanhos.length > 0) {
+            alert("Por favor, selecione um tamanho.");
+            return;
         }
-        if(!selectedColor && (produto.cores && produto.cores.length > 0)) {
-            alert("Por favor, selecione uma cor."); return;
+        if(!selectedColor && cores.length > 0) {
+            alert("Por favor, selecione uma cor.");
+            return;
         }
 
-        const item = {
+        const itemParaSacola = {
             id: id,
             nome: produto.nome,
             preco: produto.preco,
             foto: fotos[0],
-            tamanho: selectedSize || 'Único',
-            cor: selectedColor || 'Única'
+            tamanho: selectedSize,
+            cor: selectedColor
         };
 
+        // Chama a função global do bag-script.js
         if(window.addToBag) {
-            window.addToBag(item); // Função do bag-script.js
+            window.addToBag(itemParaSacola);
+            // Abre a sidebar da sacola visualmente para confirmar
+            const bagBtn = document.getElementById('bag-icon-button');
+            if(bagBtn) bagBtn.click();
         } else {
-            console.error("Função addToBag não encontrada.");
+            console.error("Função addToBag não encontrada. Verifique se bag-script.js foi carregado.");
+            alert("Erro ao adicionar à sacola.");
         }
     });
 
-    // Pedir no WhatsApp
-    document.getElementById('whatsapp-order-btn').addEventListener('click', () => {
-        const num = "5561994134559";
-        let msg = `Olá! Gostaria de pedir: *${produto.nome}*`;
-        if(selectedSize) msg += `\nTamanho: ${selectedSize}`;
-        if(selectedColor) msg += `\nCor: ${selectedColor}`;
+    // 5. Botão WhatsApp Direto
+    document.getElementById('btn-whatsapp-direto').addEventListener('click', () => {
+        const num = "5561994134559"; // Número da dona
+        let msg = `Olá! Gostaria de encomendar o produto:\n\n*${produto.nome}*\n`;
+        
+        if(selectedSize) msg += `Tamanho: ${selectedSize}\n`;
+        else if(tamanhos.length > 0) msg += `(Não selecionei tamanho ainda)\n`;
+        
+        if(selectedColor) msg += `Cor: ${selectedColor}\n`;
+        else if(cores.length > 0) msg += `(Não selecionei cor ainda)\n`;
         
         window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank');
     });
