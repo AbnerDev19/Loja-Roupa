@@ -1960,3 +1960,35 @@ a.product-card-link {
         font-size: 1.3rem; /* Levemente menor no mobile */
     }
 }
+/* ============================================== */
+/* ==== ESTILO DO BOTÃO WHATSAPP DA SACOLA ==== */
+/* ============================================== */
+.pdp-whatsapp-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 1rem;
+    margin-top: 0;
+    background-color: var(--color-whatsapp); /* Define o verde */
+    color: var(--color-white); /* Ícone e texto brancos */
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    border-radius: 50px;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);
+}
+
+.pdp-whatsapp-button:hover {
+    background-color: #1DA851;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(37, 211, 102, 0.3);
+}
+
+.pdp-whatsapp-button .fab {
+    font-size: 1.3rem; /* Tamanho do ícone */
+}

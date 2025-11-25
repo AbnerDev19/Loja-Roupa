@@ -25,7 +25,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const productGrid = document.getElementById('product-grid');
     const filterTabs = document.querySelectorAll('.filter-tab-btn');
     const searchBar = document.getElementById('search-bar');
+    
+    // Filtros Sidebar
     const sidebarCheckboxes = document.querySelectorAll('.sub-filter-checkbox');
+    const sizeCheckboxes = document.querySelectorAll('.size-filter-checkbox');
     const colorSwatches = document.querySelectorAll('.color-filter-swatch');
     
     let allProducts = []; // Armazena todos os produtos baixados
@@ -73,17 +76,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         products.forEach(prod => {
             // Define a imagem principal (primeira do array ou campo foto)
-            const mainImage = (prod.fotos && prod.fotos.length > 0) ? prod.fotos[0] : (prod.foto || 'placeholder.jpg');
+            const mainImage = (prod.fotos && prod.fotos.length > 0) ? prod.fotos[0] : (prod.foto || 'Fotos/placeholder.jpg');
             
-            // Cria as strings de dados para filtro
-            const categoryString = (prod.categoria || "").toLowerCase();
-            const nameString = (prod.nome || "").toLowerCase();
-            const colorString = (prod.corNomes ? prod.corNomes.join(" ") : "").toLowerCase();
-
             const card = document.createElement('div');
             card.className = 'product-card';
-            // Guarda dados nos atributos para filtragem rápida se necessário, 
-            // mas aqui usaremos a array 'allProducts' para filtrar.
             
             card.innerHTML = `
                 <a href="produto.html?id=${prod.id}" class="product-card-link">
@@ -113,12 +109,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         const activeTabBtn = document.querySelector('.filter-tab-btn.active');
         const activeCategory = activeTabBtn ? activeTabBtn.dataset.filter : 'todos';
 
-        // Checkboxes (Sidebar)
+        // Filtros Sidebar: Features (Texto)
         const activeSubFilters = Array.from(sidebarCheckboxes)
             .filter(cb => cb.checked)
             .map(cb => cb.value.toLowerCase());
 
-        // Cores (Sidebar)
+        // Filtros Sidebar: Tamanhos (Texto exato)
+        const activeSizeFilters = Array.from(sizeCheckboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.value); // Mantém case original (P, M, G) ou trata depois
+
+        // Filtros Sidebar: Cores
         const activeColorFilters = Array.from(document.querySelectorAll('.color-filter-swatch.selected'))
             .map(s => s.dataset.colorName.toLowerCase());
 
@@ -127,46 +128,52 @@ document.addEventListener("DOMContentLoaded", async () => {
             const prodCat = (prod.categoria || "").toLowerCase();
             const prodName = (prod.nome || "").toLowerCase();
             const prodColors = (prod.corNomes || []).map(c => c.toLowerCase());
-            const prodSizes = (prod.tamanhos || []).join(" ").toLowerCase(); // Para filtrar plus size se estiver no tamanho
+            const prodSizes = (prod.tamanhos || []); // Array original de tamanhos
 
             // 1. Filtro de Categoria (Abas)
             let matchCategory = true;
             if (activeCategory !== 'todos') {
-                // Se for "destaques", verifica se tem tag destaque OU se é a home (simplificado aqui para mostrar tudo ou filtrar específico)
                 if (activeCategory === 'destaques') {
-                    // Se você tiver um campo 'destaque' no banco, use-o. 
-                    // Por enquanto, vamos assumir que 'destaques' mostra tudo ou uma categoria específica.
-                    // Vamos fazer 'destaques' mostrar tudo por enquanto na loja.
-                    matchCategory = true; 
+                    matchCategory = true; // Por enquanto mostra tudo em destaques na loja
                 } else {
                     matchCategory = prodCat.includes(activeCategory);
                 }
             }
 
             // 2. Busca por Texto
-            const matchSearch = prodName.includes(searchTerm) || prod.id.includes(searchTerm);
+            const matchSearch = prodName.includes(searchTerm) || prod.id.toLowerCase().includes(searchTerm);
 
-            // 3. Sub-filtros (Sidebar - ex: Plus Size)
+            // 3. Sub-filtros (Features) - Busca parcial no nome/categoria
             let matchSub = true;
             if (activeSubFilters.length > 0) {
-                // Verifica se alguma das tags selecionadas bate com o produto
-                // Ex: se selecionou 'plus', verifica se nome ou categoria tem 'plus'
                 matchSub = activeSubFilters.some(filter => {
-                    return prodName.includes(filter) || prodCat.includes(filter) || prodSizes.includes(filter);
+                    return prodName.includes(filter) || prodCat.includes(filter);
                 });
             }
 
-            // 4. Filtro de Cor
+            // 4. Filtro de Tamanho (Busca exata no array)
+            let matchSize = true;
+            if (activeSizeFilters.length > 0) {
+                // Se o produto não tem tamanhos cadastrados, falha se houver filtro ativo
+                if (!prodSizes || prodSizes.length === 0) {
+                    matchSize = false;
+                } else {
+                    // Verifica se o produto tem PELO MENOS UM dos tamanhos selecionados
+                    matchSize = activeSizeFilters.some(filterSize => 
+                        prodSizes.includes(filterSize)
+                    );
+                }
+            }
+
+            // 5. Filtro de Cor
             let matchColor = true;
             if (activeColorFilters.length > 0) {
-                // Verifica se o produto tem ALGUMA das cores selecionadas
                 matchColor = activeColorFilters.some(filterColor => {
-                    // Verifica nos nomes das cores do produto
                     return prodColors.some(prodColorName => prodColorName.includes(filterColor));
                 });
             }
 
-            return matchCategory && matchSearch && matchSub && matchColor;
+            return matchCategory && matchSearch && matchSub && matchSize && matchColor;
         });
 
         renderProducts(filtered);
@@ -186,8 +193,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Busca
     searchBar.addEventListener('input', applyFilters);
 
-    // Sidebar Checkboxes
+    // Sidebar Checkboxes (Geral + Tamanho)
     sidebarCheckboxes.forEach(cb => cb.addEventListener('change', applyFilters));
+    sizeCheckboxes.forEach(cb => cb.addEventListener('change', applyFilters));
 
     // Sidebar Cores
     colorSwatches.forEach(swatch => {
@@ -204,8 +212,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         hamburger.addEventListener('click', () => {
             hamburger.classList.toggle('open');
             nav.classList.toggle('open');
+            // Altura fixa ou dinâmica
             if(nav.classList.contains('open')) {
-                nav.style.height = window.innerWidth > 768 ? '200px' : 'auto';
+                // Abre o menu
+                const content = document.getElementById('card-nav-content');
+                nav.style.height = (60 + content.scrollHeight) + 'px';
             } else {
                 nav.style.height = '60px';
             }

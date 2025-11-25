@@ -14,12 +14,14 @@
 <body>
 
     <div class="sub-filter-overlay" id="sub-filter-overlay"></div>
+    
     <nav class="sub-filter-sidebar" id="sub-filter-sidebar">
         <div class="sub-filter-header">
             <h3>Refinar Busca</h3>
             <button class="sub-filter-close-btn" id="sub-filter-close-btn">&times;</button>
         </div>
         <div class="sub-filter-body">
+            
             <div class="sub-filter-group">
                 <h4 class="sub-filter-title">Filtrar por Cor</h4>
                 <div class="sub-filter-options-color" id="color-filter-container">
@@ -34,12 +36,27 @@
                     <span class="color-filter-swatch" data-color-name="bege" style="background-color: #D2B48C;" title="Bege"></span>
                 </div>
             </div>
+
+            <div class="sub-filter-group">
+                <h4 class="sub-filter-title">Tamanhos</h4>
+                <div class="sub-filter-options" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <label class="sub-filter-label"><input type="checkbox" class="size-filter-checkbox" value="P"> P</label>
+                    <label class="sub-filter-label"><input type="checkbox" class="size-filter-checkbox" value="M"> M</label>
+                    <label class="sub-filter-label"><input type="checkbox" class="size-filter-checkbox" value="G"> G</label>
+                    <label class="sub-filter-label"><input type="checkbox" class="size-filter-checkbox" value="GG"> GG</label>
+                    <label class="sub-filter-label"><input type="checkbox" class="size-filter-checkbox" value="G1"> G1 (Plus)</label>
+                    <label class="sub-filter-label"><input type="checkbox" class="size-filter-checkbox" value="G2"> G2 (Plus)</label>
+                    <label class="sub-filter-label"><input type="checkbox" class="size-filter-checkbox" value="G3"> G3 (Plus)</label>
+                    <label class="sub-filter-label"><input type="checkbox" class="size-filter-checkbox" value="U"> Único</label>
+                </div>
+            </div>
+
             <div class="sub-filter-group">
                 <h4 class="sub-filter-title">Características</h4>
                 <div class="sub-filter-options">
-                    <label class="sub-filter-label"><input type="checkbox" class="sub-filter-checkbox" value="plus"> Plus Size</label>
-                    <label class="sub-filter-label"><input type="checkbox" class="sub-filter-checkbox" value="longa"> Longa / Midi</label>
-                    <label class="sub-filter-label"><input type="checkbox" class="sub-filter-checkbox" value="manga-longa"> Manga Longa</label>
+                    <label class="sub-filter-label"><input type="checkbox" class="sub-filter-checkbox" value="plus"> Plus Size (Tag)</label>
+                    <label class="sub-filter-label"><input type="checkbox" class="sub-filter-checkbox" value="longo"> Longo / Midi</label>
+                    <label class="sub-filter-label"><input type="checkbox" class="sub-filter-checkbox" value="manga"> Manga Longa</label>
                 </div>
             </div>
         </div>
