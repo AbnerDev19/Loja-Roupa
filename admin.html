@@ -15,9 +15,13 @@
         <div class="login-box">
             <img src="Fotos/logo-removebg-preview.png" alt="Logo Crismon">
             <h2>Acesso Restrito</h2>
-            <input type="text" id="admin-email" class="input-field" placeholder="E-mail" value="admin@crismon.com">
+            <input type="text" id="admin-email" class="input-field" placeholder="E-mail">
             <input type="password" id="admin-password" class="input-field" placeholder="Senha">
             <button id="btn-login" class="liquid-button dark" style="width:100%; justify-content:center;">Entrar no Sistema</button>
+            
+            <a href="index.html" style="display:block; margin-top:1rem; color:var(--color-text-light); text-decoration:none; font-size:0.9rem;">
+                <i class="fas fa-arrow-left"></i> Voltar ao site
+            </a>
         </div>
     </div>
 
@@ -26,10 +30,15 @@
             <div class="logo-container">
                 <span class="nav-logo-text">Painel Crismon</span>
             </div>
-            <div style="display: flex; gap: 10px;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <a href="index.html" class="liquid-button" style="text-decoration: none; display: flex; align-items: center; gap: 5px; color: var(--color-text-dark);">
+                    <i class="fas fa-home"></i> <span style="display: none; @media(min-width:768px){display:inline;}">Ir para o Site</span>
+                </a>
+
                 <button id="btn-migrate" class="liquid-button" style="background: #EAB308; border:none; color:#fff; font-size: 0.8rem;">
-                    <i class="fas fa-database"></i> Migrar DB Estático
+                    <i class="fas fa-database"></i> <span class="desktop-only">Migrar DB</span>
                 </button>
+                
                 <button id="btn-logout" class="liquid-button">Sair</button>
             </div>
         </header>
@@ -67,7 +76,8 @@
             <h2 id="modal-title" class="modal-title">Novo Produto</h2>
             
             <form id="product-form">
-                <input type="hidden" id="prod-id"> <div class="form-grid">
+                <input type="hidden" id="prod-id"> 
+                <div class="form-grid">
                     <div class="form-group full-width">
                         <label>Nome do Produto</label>
                         <input type="text" id="prod-name" class="input-field" required placeholder="Ex: Vestido Floral">
