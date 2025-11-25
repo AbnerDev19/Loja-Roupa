@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Área da Dona - Crismon Modas</title>
+    <title>Administração - Crismon Modas</title>
     <link rel="icon" href="Fotos/favicon.png" type="image/png">
     <link rel="stylesheet" href="loja-style.css">
     <link rel="stylesheet" href="admin.css">
@@ -13,11 +13,11 @@
 
     <div id="login-screen" class="login-overlay">
         <div class="login-box">
-            <img src="Fotos/logo-removebg-preview.png" alt="Logo">
-            <h2>Área Restrita</h2>
-            <input type="text" id="admin-email" placeholder="E-mail" value="admin@crismon.com">
-            <input type="password" id="admin-password" placeholder="Senha">
-            <button id="btn-login" class="liquid-button dark">Entrar</button>
+            <img src="Fotos/logo-removebg-preview.png" alt="Logo Crismon">
+            <h2>Acesso Restrito</h2>
+            <input type="text" id="admin-email" class="input-field" placeholder="E-mail" value="admin@crismon.com">
+            <input type="password" id="admin-password" class="input-field" placeholder="Senha">
+            <button id="btn-login" class="liquid-button dark" style="width:100%; justify-content:center;">Entrar no Sistema</button>
         </div>
     </div>
 
@@ -26,14 +26,19 @@
             <div class="logo-container">
                 <span class="nav-logo-text">Painel Crismon</span>
             </div>
-            <button id="btn-logout" class="liquid-button">Sair</button>
+            <div style="display: flex; gap: 10px;">
+                <button id="btn-migrate" class="liquid-button" style="background: #EAB308; border:none; color:#fff; font-size: 0.8rem;">
+                    <i class="fas fa-database"></i> Migrar DB Estático
+                </button>
+                <button id="btn-logout" class="liquid-button">Sair</button>
+            </div>
         </header>
 
         <main class="admin-main">
             <div class="admin-controls">
                 <h1>Gerenciar Produtos</h1>
                 <button id="btn-add-product" class="liquid-button primary">
-                    <i class="fas fa-plus"></i> Novo Produto
+                    <i class="fas fa-plus"></i> Adicionar Produto
                 </button>
             </div>
 
@@ -41,10 +46,11 @@
                 <table class="admin-table">
                     <thead>
                         <tr>
-                            <th>Foto</th>
+                            <th>Imagem</th>
                             <th>Nome</th>
                             <th>Preço</th>
                             <th>Categoria</th>
+                            <th>Tamanhos</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -58,50 +64,70 @@
     <div id="product-modal" class="modal-overlay">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
-            <h2 id="modal-title">Produto</h2>
+            <h2 id="modal-title" class="modal-title">Novo Produto</h2>
             
             <form id="product-form">
-                <input type="hidden" id="prod-id">
-
-                <div class="form-group">
-                    <label>Nome</label>
-                    <input type="text" id="prod-name" required placeholder="Nome do produto">
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Preço</label>
-                        <input type="text" id="prod-price" required placeholder="R$ 0,00">
+                <input type="hidden" id="prod-id"> <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label>Nome do Produto</label>
+                        <input type="text" id="prod-name" class="input-field" required placeholder="Ex: Vestido Floral">
                     </div>
+
                     <div class="form-group">
-                        <label>Parcelas</label>
-                        <input type="text" id="prod-installments" placeholder="3x de R$...">
+                        <label>Preço (R$)</label>
+                        <input type="text" id="prod-price" class="input-field" required placeholder="Ex: R$ 199,90">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Categoria Principal</label>
+                        <select id="prod-category" class="admin-select">
+                            <option value="vestidos">Vestidos</option>
+                            <option value="saias">Saias</option>
+                            <option value="blusas">Blusas</option>
+                            <option value="calcas">Calças</option>
+                            <option value="fardamentos">Fardamentos</option>
+                            <option value="camisetas">Camisetas</option>
+                            <option value="destaques">Destaques (Home)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Texto de Parcelamento</label>
+                        <input type="text" id="prod-installments" class="input-field" placeholder="Ex: em até 3x de R$ 66,63">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tamanhos (separados por vírgula)</label>
+                        <input type="text" id="prod-sizes" class="input-field" placeholder="Ex: P, M, G, GG">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nomes das Cores</label>
+                        <input type="text" id="prod-color-names" class="input-field" placeholder="Ex: Azul, Vermelho, Preto">
+                        <span class="helper-text">Use a mesma ordem dos códigos Hex abaixo.</span>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Códigos das Cores (Hex) ou "Variadas"</label>
+                        <input type="text" id="prod-colors" class="input-field" placeholder="Ex: #0000FF, #FF0000, #000000">
+                        <span class="helper-text">Para pegar a cor exata. Se não souber, use nomes em inglês (blue, red) ou códigos hexadecimais.</span>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Links das Fotos (uma por linha)</label>
+                        <textarea id="prod-photos" class="input-field" placeholder="Fotos/vestido1.jpg&#10;Fotos/vestido2.jpg"></textarea>
+                        <span class="helper-text">A primeira foto será a capa.</span>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Categoria</label>
-                    <select id="prod-category" class="admin-select">
-                        <option value="vestidos">Vestidos</option>
-                        <option value="saias">Saias</option>
-                        <option value="blusas">Blusas</option>
-                        <option value="calcas">Calças</option>
-                        <option value="fardamentos">Fardamentos</option>
-                        <option value="camisetas">Camisetas</option>
-                        <option value="destaques">Destaques (Home)</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Link da Foto</label>
-                    <input type="text" id="prod-photo" required placeholder="Fotos/arquivo.jpg">
-                </div>
-
-                <button type="submit" class="liquid-button primary" style="width: 100%; margin-top: 1rem;">Salvar</button>
+                <button type="submit" class="liquid-button primary" style="width: 100%; margin-top: 2rem; justify-content: center;">
+                    Salvar Produto
+                </button>
             </form>
         </div>
     </div>
 
+    <script src="produtos-db.js"></script> 
     <script type="module" src="admin-script.js"></script>
 </body>
 </html>

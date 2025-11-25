@@ -1,287 +1,233 @@
-/*
- * SCRIPT DA LOJA (loja-script.js)
- */
-document.addEventListener("DOMContentLoaded", () => {
+/* =================================================== */
+/* ==== SCRIPT DA LOJA (Firebase Integrado) ==== */
+/* =================================================== */
 
-    /* ============================================= */
-    /* ==== SEÇÃO 1: LÓGICA DO script.js (MENU, DOCK, ETC) ==== */
-    /* ============================================= */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // LÓGICA DO SPOTLIGHT CARD (Seção 2 do script.js)
-    const spotlightCards = document.querySelectorAll('.product-card');
-    spotlightCards.forEach(card => {
-        card.addEventListener('mousemove', e => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            card.style.setProperty('--mouse-x', `${x}px`);
-            card.style.setProperty('--mouse-y', `${y}px`);
+// Configuração do Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyCxznTW2u5DMawvTratTuZ-bFpQoDb4XlQ",
+  authDomain: "crismon-modas.firebaseapp.com",
+  projectId: "crismon-modas",
+  storageBucket: "crismon-modas.firebasestorage.app",
+  messagingSenderId: "595669038570",
+  appId: "1:595669038570:web:2b42fba0e7e6fe7bb8ae93",
+  measurementId: "G-KFWZBJZ4SX"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+document.addEventListener("DOMContentLoaded", async () => {
+    
+    // --- 1. Elementos da DOM ---
+    const productGrid = document.getElementById('product-grid');
+    const filterTabs = document.querySelectorAll('.filter-tab-btn');
+    const searchBar = document.getElementById('search-bar');
+    const sidebarCheckboxes = document.querySelectorAll('.sub-filter-checkbox');
+    const colorSwatches = document.querySelectorAll('.color-filter-swatch');
+    
+    let allProducts = []; // Armazena todos os produtos baixados
+
+    // --- 2. Função para Carregar Produtos ---
+    async function fetchProducts() {
+        try {
+            const querySnapshot = await getDocs(collection(db, "produtos"));
+            allProducts = [];
+            
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                allProducts.push({ id: doc.id, ...data });
+            });
+
+            renderProducts(allProducts);
+            
+            // Verifica URL para filtro inicial (ex: loja.html?categoria=vestidos)
+            const params = new URLSearchParams(window.location.search);
+            const categoryParam = params.get('categoria');
+            if (categoryParam) {
+                // Ativa a aba correta visualmente
+                filterTabs.forEach(t => {
+                    t.classList.remove('active');
+                    if(t.dataset.filter === categoryParam) t.classList.add('active');
+                });
+                // Aplica o filtro
+                applyFilters();
+            }
+
+        } catch (error) {
+            console.error("Erro ao buscar produtos:", error);
+            productGrid.innerHTML = "<p>Erro ao carregar produtos. Tente novamente.</p>";
+        }
+    }
+
+    // --- 3. Função para Renderizar HTML ---
+    function renderProducts(products) {
+        productGrid.innerHTML = "";
+
+        if (products.length === 0) {
+            productGrid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem;">Nenhum produto encontrado.</div>`;
+            return;
+        }
+
+        products.forEach(prod => {
+            // Define a imagem principal (primeira do array ou campo foto)
+            const mainImage = (prod.fotos && prod.fotos.length > 0) ? prod.fotos[0] : (prod.foto || 'placeholder.jpg');
+            
+            // Cria as strings de dados para filtro
+            const categoryString = (prod.categoria || "").toLowerCase();
+            const nameString = (prod.nome || "").toLowerCase();
+            const colorString = (prod.corNomes ? prod.corNomes.join(" ") : "").toLowerCase();
+
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            // Guarda dados nos atributos para filtragem rápida se necessário, 
+            // mas aqui usaremos a array 'allProducts' para filtrar.
+            
+            card.innerHTML = `
+                <a href="produto.html?id=${prod.id}" class="product-card-link">
+                    <div class="product-image-placeholder" style="background-image: url('${mainImage}');"></div>
+                </a>
+                <div class="product-card-content">
+                    <span class="product-card-label">Cód ${prod.id.substring(0, 6).toUpperCase()}</span>
+                    <h3><a href="produto.html?id=${prod.id}" class="product-card-link">${prod.nome}</a></h3>
+                    <p class="product-price">${prod.preco}</p>
+                    <p class="product-installments">${prod.parcelas || ''}</p>
+                    <div class="product-card-footer">
+                        <a href="produto.html?id=${prod.id}" class="card-add-button">
+                            <span>Ver Opções</span>
+                        </a>
+                    </div>
+                </div>
+            `;
+            productGrid.appendChild(card);
+        });
+    }
+
+    // --- 4. Lógica de Filtragem ---
+    function applyFilters() {
+        const searchTerm = searchBar.value.toLowerCase();
+        
+        // Aba Ativa
+        const activeTabBtn = document.querySelector('.filter-tab-btn.active');
+        const activeCategory = activeTabBtn ? activeTabBtn.dataset.filter : 'todos';
+
+        // Checkboxes (Sidebar)
+        const activeSubFilters = Array.from(sidebarCheckboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.value.toLowerCase());
+
+        // Cores (Sidebar)
+        const activeColorFilters = Array.from(document.querySelectorAll('.color-filter-swatch.selected'))
+            .map(s => s.dataset.colorName.toLowerCase());
+
+        // Filtrar o Array
+        const filtered = allProducts.filter(prod => {
+            const prodCat = (prod.categoria || "").toLowerCase();
+            const prodName = (prod.nome || "").toLowerCase();
+            const prodColors = (prod.corNomes || []).map(c => c.toLowerCase());
+            const prodSizes = (prod.tamanhos || []).join(" ").toLowerCase(); // Para filtrar plus size se estiver no tamanho
+
+            // 1. Filtro de Categoria (Abas)
+            let matchCategory = true;
+            if (activeCategory !== 'todos') {
+                // Se for "destaques", verifica se tem tag destaque OU se é a home (simplificado aqui para mostrar tudo ou filtrar específico)
+                if (activeCategory === 'destaques') {
+                    // Se você tiver um campo 'destaque' no banco, use-o. 
+                    // Por enquanto, vamos assumir que 'destaques' mostra tudo ou uma categoria específica.
+                    // Vamos fazer 'destaques' mostrar tudo por enquanto na loja.
+                    matchCategory = true; 
+                } else {
+                    matchCategory = prodCat.includes(activeCategory);
+                }
+            }
+
+            // 2. Busca por Texto
+            const matchSearch = prodName.includes(searchTerm) || prod.id.includes(searchTerm);
+
+            // 3. Sub-filtros (Sidebar - ex: Plus Size)
+            let matchSub = true;
+            if (activeSubFilters.length > 0) {
+                // Verifica se alguma das tags selecionadas bate com o produto
+                // Ex: se selecionou 'plus', verifica se nome ou categoria tem 'plus'
+                matchSub = activeSubFilters.some(filter => {
+                    return prodName.includes(filter) || prodCat.includes(filter) || prodSizes.includes(filter);
+                });
+            }
+
+            // 4. Filtro de Cor
+            let matchColor = true;
+            if (activeColorFilters.length > 0) {
+                // Verifica se o produto tem ALGUMA das cores selecionadas
+                matchColor = activeColorFilters.some(filterColor => {
+                    // Verifica nos nomes das cores do produto
+                    return prodColors.some(prodColorName => prodColorName.includes(filterColor));
+                });
+            }
+
+            return matchCategory && matchSearch && matchSub && matchColor;
+        });
+
+        renderProducts(filtered);
+    }
+
+    // --- 5. Event Listeners ---
+    
+    // Abas
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            filterTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            applyFilters();
         });
     });
 
-    // LÓGICA DO HEADER/NAV (Seção 6 do script.js)
+    // Busca
+    searchBar.addEventListener('input', applyFilters);
+
+    // Sidebar Checkboxes
+    sidebarCheckboxes.forEach(cb => cb.addEventListener('change', applyFilters));
+
+    // Sidebar Cores
+    colorSwatches.forEach(swatch => {
+        swatch.addEventListener('click', () => {
+            swatch.classList.toggle('selected');
+            applyFilters();
+        });
+    });
+
+    // Menu Mobile e Sidebar
     const hamburger = document.getElementById('hamburger-menu');
     const nav = document.getElementById('card-nav');
-    const navContent = document.getElementById('card-nav-content');
-    
-    if (hamburger && nav && navContent) {
-        const navCards = navContent.querySelectorAll('.nav-card');
-        let isNavOpen = false; 
-
-        function getMobileNavContentHeight() {
-            let height = 0;
-            const gap = 8;
-            navCards.forEach(card => { height += card.offsetHeight; });
-            height += (navCards.length - 1) * gap;
-            const contentStyle = getComputedStyle(navContent);
-            height += parseFloat(contentStyle.paddingTop) + parseFloat(contentStyle.paddingBottom);
-            return height;
-        }
-
-        function setNavState(isOpen) {
-            isNavOpen = isOpen;
-            hamburger.classList.toggle('open', isOpen);
-            nav.classList.toggle('open', isOpen);
-            if (isOpen) {
-                const topBarHeight = 60;
-                let contentHeight = (window.innerWidth > 768) ? 200 : getMobileNavContentHeight();
-                nav.style.height = topBarHeight + contentHeight + 'px';
-                nav.setAttribute('aria-hidden', 'false');
-            } else {
-                nav.style.height = '60px'; 
-                nav.setAttribute('aria-hidden', 'true');
-            }
-        }
-        hamburger.addEventListener('click', () => setNavState(!isNavOpen));
-        window.addEventListener('resize', () => {
-            if (isNavOpen) {
-                let contentHeight = (window.innerWidth > 768) ? 200 : getMobileNavContentHeight();
-                nav.style.height = 60 + contentHeight + 'px';
+    if(hamburger) {
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('open');
+            nav.classList.toggle('open');
+            if(nav.classList.contains('open')) {
+                nav.style.height = window.innerWidth > 768 ? '200px' : 'auto';
             } else {
                 nav.style.height = '60px';
             }
         });
-        
-        // Função para animar a entrada no Desktop (MODIFICADA)
-        function runDesktopEntryAnimation() {
-            if (window.innerWidth > 768) {
-                // setNavState(true); // <-- REMOVIDO: Impede que o menu abra sozinho
-                navCards.forEach((card, index) => {
-                    card.style.transitionDelay = `${0.15 + index * 0.1}s`;
-                });
-            }
-        }
-        // Roda a animação de entrada do desktop (agora apenas para delays)
-        setTimeout(runDesktopEntryAnimation, 100);
-    }
-    
-    /* ======================================================== */
-    /* ==== SEÇÃO 2: LÓGICA DA SACOLA (Combinada e Corrigida) ==== */
-    /* ======================================================== */
-
-    // (Esta seção é opcional, mas está aqui caso você a tenha)
-    const openCartBtn = document.getElementById('open-cart-btn');
-    const closeCartBtn = document.getElementById('cart-close-btn');
-    const cartSidebar = document.getElementById('cart-sidebar');
-    const cartOverlay = document.getElementById('cart-overlay');
-    
-    if(openCartBtn && cartSidebar && cartOverlay){
-        function openCart() {
-            if (cartSidebar) cartSidebar.classList.add('open');
-            if (cartOverlay) cartOverlay.classList.add('open');
-        }
-
-        function closeCart() {
-            if (cartSidebar) cartSidebar.classList.remove('open');
-            if (cartOverlay) cartOverlay.classList.remove('open');
-        }
-        
-        openCartBtn.addEventListener('click', openCart);
-        if (closeCartBtn) closeCartBtn.addEventListener('click', closeCart);
-        if (cartOverlay) cartOverlay.addEventListener('click', closeCart);
-    }
-    
-    
-    /* ======================================================== */
-    /* ==== SEÇÃO 5: LÓGICA DE FILTRO (BUSCA + TABS + SIDEBAR) ==== */
-    /* ======================================================== */
-    
-    const filterTabsContainer = document.getElementById('filter-tabs');
-    const productGrid = document.getElementById('product-grid');
-    const searchBar = document.getElementById('search-bar'); // Pega a barra de busca
-    
-    if (filterTabsContainer && productGrid) {
-        const filterTabs = filterTabsContainer.querySelectorAll('.filter-tab-btn');
-        const productCards = productGrid.querySelectorAll('.product-card');
-        const sidebarCheckboxes = document.querySelectorAll('.sub-filter-checkbox');
-        
-        // NOVO: Pega os swatches de cor
-        const colorSwatches = document.querySelectorAll('.color-filter-swatch');
-
-        function filterProducts() {
-            // 1. Get o termo de busca (NOVO)
-            const searchTerm = searchBar ? searchBar.value.toLowerCase() : '';
-
-            // 2. Get o filtro principal (Abas)
-            const activeTab = filterTabsContainer.querySelector('.filter-tab-btn.active');
-            const mainCategory = activeTab ? activeTab.dataset.filter : 'destaques';
-
-            // 3. Get os sub-filtros (Sidebar Checkboxes)
-            const activeSubFilters = [];
-            sidebarCheckboxes.forEach(checkbox => {
-                if (checkbox.checked) {
-                    activeSubFilters.push(checkbox.value);
-                }
-            });
-            
-            // NOVO: 4. Get os filtros de cor
-            const activeColorFilters = [];
-            colorSwatches.forEach(swatch => {
-                if (swatch.classList.contains('selected')) {
-                    activeColorFilters.push(swatch.dataset.colorName);
-                }
-            });
-
-
-            // 5. Itera sobre os cards e aplica a lógica
-            productCards.forEach(card => {
-                const cardCategories = card.dataset.category || 'destaques';
-                const cardColorNames = card.dataset.colorNames || ''; // Pega os nomes das cores do card
-                
-                // Pega o texto do card para a busca (NOVO)
-                const productName = (card.querySelector('h3 a') ? card.querySelector('h3 a').textContent : '').toLowerCase();
-                const productCode = (card.querySelector('.product-card-label') ? card.querySelector('.product-card-label').textContent : '').toLowerCase();
-
-                // Lógica do Filtro Principal
-                const showsMain = (mainCategory === 'destaques') || cardCategories.includes(mainCategory);
-                
-                // Lógica do Sub-Filtro (Checkboxes)
-                const showsSub = (activeSubFilters.length === 0) || activeSubFilters.some(sub => cardCategories.includes(sub));
-
-                // Lógica da Busca (NOVO)
-                const showsSearch = (searchTerm === '') || productName.includes(searchTerm) || productCode.includes(searchTerm);
-                
-                // NOVO: Lógica do Filtro de Cor
-                // Se nenhum filtro de cor estiver ativo, mostra (true)
-                // Se houver filtros, verifica se o cardColorNames inclui PELO MENOS UM (some) dos activeColorFilters
-                const showsColor = (activeColorFilters.length === 0) || activeColorFilters.some(colorName => cardColorNames.includes(colorName));
-
-
-                // 6. Mostra ou esconde o card (ADICIONADO O showsColor)
-                if (showsMain && showsSub && showsSearch && showsColor) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-
-        // Adiciona o clique em cada aba principal
-        filterTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                filterTabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                filterProducts();
-            });
-        });
-
-        // Adiciona o clique em cada checkbox da sidebar
-        sidebarCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', () => {
-                filterProducts();
-            });
-        });
-
-        // NOVO: Adiciona o clique em cada swatch de cor
-        colorSwatches.forEach(swatch => {
-            swatch.addEventListener('click', () => {
-                // Alterna a classe 'selected'
-                swatch.classList.toggle('selected');
-                // Roda o filtro novamente
-                filterProducts();
-            });
-        });
-
-        // Adiciona o listener para a barra de busca (NOVO)
-        if (searchBar) {
-            searchBar.addEventListener('input', () => {
-                filterProducts();
-            });
-        }
-
-        // Roda o filtro uma vez no carregamento
-        filterProducts();
     }
 
+    // Sidebar de Filtro (Refinar)
+    const openFilterBtn = document.getElementById('open-subfilter-btn');
+    const closeFilterBtn = document.getElementById('sub-filter-close-btn');
+    const filterSidebar = document.getElementById('sub-filter-sidebar');
+    const filterOverlay = document.getElementById('sub-filter-overlay');
 
-    /* ======================================================== */
-    /* ==== SEÇÃO 6: LÓGICA DA SIDEBAR DE FILTRO (NOVA) ==== */
-    /* ======================================================== */
-    
-    const openSubFilterBtn = document.getElementById('open-subfilter-btn');
-    const closeSubFilterBtn = document.getElementById('sub-filter-close-btn');
-    const subFilterSidebar = document.getElementById('sub-filter-sidebar');
-    const subFilterOverlay = document.getElementById('sub-filter-overlay');
-
-    function openSubFilter() {
-        if (subFilterSidebar) subFilterSidebar.classList.add('open');
-        if (subFilterOverlay) subFilterOverlay.classList.add('open');
+    function toggleFilter() {
+        filterSidebar.classList.toggle('open');
+        filterOverlay.classList.toggle('open');
     }
 
-    function closeSubFilter() {
-        if (subFilterSidebar) subFilterSidebar.classList.remove('open');
-        if (subFilterOverlay) subFilterOverlay.classList.remove('open');
-    }
+    if(openFilterBtn) openFilterBtn.addEventListener('click', toggleFilter);
+    if(closeFilterBtn) closeFilterBtn.addEventListener('click', toggleFilter);
+    if(filterOverlay) filterOverlay.addEventListener('click', toggleFilter);
 
-    if (openSubFilterBtn) openSubFilterBtn.addEventListener('click', openSubFilter);
-    if (closeSubFilterBtn) closeSubFilterBtn.addEventListener('click', closeSubFilter);
-    if (subFilterOverlay) subFilterOverlay.addEventListener('click', closeSubFilter);
+    // --- Inicializar ---
+    fetchProducts();
 
-
-}); // Fim do 'DOMContentLoaded'
-
-// Este script executa assim que a página "loja.html" carrega
-document.addEventListener('DOMContentLoaded', function() {
-
-  // --- 1. LER A URL ---
-  // Pega os parâmetros da URL (ex: ?categoria=vestido)
-  const urlParams = new URLSearchParams(window.location.search);
-  
-  // Pega o valor do parâmetro "categoria"
-  // Se não houver, usa "todos" como padrão
-  const filtroDaURL = urlParams.get('categoria') || 'todos';
-
-  // --- 2. ENCONTRAR OS ELEMENTOS ---
-  const todosProdutos = document.querySelectorAll('.item-produto');
-  const botoesFiltro = document.querySelectorAll('.btn-categoria');
-
-  // --- 3. ATUALIZAR OS BOTÕES ---
-  botoesFiltro.forEach(function(botao) {
-    // Limpa a classe "ativo" de todos
-    botao.classList.remove('ativo');
-    
-    // Pega o "data-filtro" do botão (ex: "vestido")
-    const filtroDoBotao = botao.getAttribute('data-filtro');
-    
-    // Se o filtro do botão for igual ao filtro da URL...
-    if (filtroDoBotao === filtroDaURL) {
-      // ...adiciona a classe "ativo" nele
-      botao.classList.add('ativo');
-    }
-  });
-
-  // --- 4. FILTRAR OS PRODUTOS ---
-  todosProdutos.forEach(function(produto) {
-    // Pega a categoria do produto (ex: "saia")
-    const categoriaProduto = produto.getAttribute('data-categoria');
-
-    // Se o filtro for "todos" OU a categoria do produto bater...
-    if (filtroDaURL === 'todos' || categoriaProduto === filtroDaURL) {
-      // Mostra o produto
-      produto.classList.remove('escondido');
-    } else {
-      // Esconde o produto
-      produto.classList.add('escondido');
-    }
-  });
 });
